@@ -1,9 +1,5 @@
 # Ingestion Configuration - Complete configuration for scraping and data validation
 
-
-version: "1.0.0"
-environment: "${ENVIRONMENT:-dev}"  # dev, staging, prod
-
 # Scraper Configuration
 
 scraper:
