@@ -1,0 +1,337 @@
+# Ingestion Configuration - Complete configuration for scraping and data validation
+
+
+version: "1.0.0"
+environment: "${ENVIRONMENT:-dev}"  # dev, staging, prod
+
+# Scraper Configuration
+
+scraper:
+  # Request settings
+  max_retries: 3
+  timeout_seconds: 30
+  delay_between_requests:
+    min: 1.5
+    max: 4.0
+  
+  # Headers rotation
+  rotate_user_agents: true
+  rotate_proxies: false
+  user_agent_pool_size: 15
+  
+  # Rate limiting
+  requests_per_hour: 180  # Conservative to avoid blocking
+  requests_per_minute: 5
+  burst_size: 3
+  
+  # Retry configuration
+  retry_backoff_factor: 1.5
+  retry_status_codes: [429, 500, 502, 503, 504]
+  retry_max_wait: 60  # seconds
+  
+  # Timeout handling
+  connection_timeout: 10
+  read_timeout: 30
+  
+  # Parallel processing
+  max_concurrent_requests: 3
+  use_threading: true
+  thread_pool_size: 5
+
+# ============================================
+# Product URLs to Track
+# ============================================
+product_urls:
+  # Electronics
+  - https://www.amazon.com/dp/B08N5WRWNW  # Example: MacBook Pro
+  - https://www.amazon.com/dp/B08N5L7C3H  # Example: iPhone
+  - https://www.amazon.com/dp/B08N5M7S5K  # Example: iPad
+  
+  # Home & Kitchen
+  - https://www.amazon.com/dp/B07FDJMG6P  # Example: Instant Pot
+  
+  # Books
+  - https://www.amazon.com/dp/038553322X   # Example: Book
+
+# Alternative: Load from file
+# product_urls_file: "data/product_urls.txt"
+# product_urls_csv: "data/products.csv"
+
+# Categories to Monitor
+
+categories:
+  - electronics
+  - home_kitchen
+  - books
+  - clothing
+  - toys_games
+  - beauty_personal_care
+
+# Schedule Configuration
+
+schedule:
+  # General schedule
+  scrape_interval_hours: 6  # How often to scrape each product
+  scrape_window_hours: 18   # Only scrape during these hours (UTC)
+  
+  # Peak hours (more frequent scraping)
+  peak_hours: 
+    enabled: true
+    start_utc: 14  # 2 PM UTC
+    end_utc: 22    # 10 PM UTC
+    interval_hours: 4
+  
+  # Off-peak hours (less frequent)
+  off_peak_interval_hours: 8
+  
+  # Daily limits
+  max_scrapes_per_product_per_day: 6
+  max_total_scrapes_per_day: 1000
+
+# Data Validation Rules
+
+validation:
+  required_fields:
+    - asin
+    - current_price
+    - title
+    - url
+    - timestamp
+  
+  price_thresholds:
+    min_price: 0.01
+    max_price: 100000.00
+    sanity_check: true  # Check if price changes > 90%
+  
+  text_fields:
+    title:
+      min_length: 3
+      max_length: 500
+      strip_whitespace: true
+      remove_emojis: true
+    
+    brand:
+      min_length: 1
+      max_length: 100
+    
+    category:
+      max_length: 100
+    
+    category_path:
+      max_length: 500
+  
+  numeric_fields:
+    rating:
+      min: 0.0
+      max: 5.0
+      decimal_places: 2
+    
+    review_count:
+      min: 0
+      max: 10000000
+    
+    discount_percentage:
+      min: 0.0
+      max: 100.0
+      decimal_places: 2
+  
+  data_quality:
+    max_null_percentage: 20  # Max % of null fields allowed
+    price_anomaly_threshold: 3.0  # Z-score threshold
+    require_currency: true
+    currency: "USD"
+
+# Error Handling & Monitoring
+
+error_handling:
+  max_consecutive_failures: 5
+  alert_after_failures: 3
+  retry_with_different_selector: true
+  fallback_selectors:
+    price:
+      - 'span.a-price-whole'
+      - 'span#priceblock_ourprice'
+      - 'span#priceblock_dealprice'
+      - 'span.a-color-price'
+    title:
+      - '#productTitle'
+      - 'h1.a-size-large'
+      - 'span#productTitle'
+  
+  alert_channels:
+    email:
+      enabled: true
+      recipients: ["alerts@example.com"]
+    slack:
+      enabled: false
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+    pagerduty:
+      enabled: false
+      integration_key: "${PAGERDUTY_KEY}"
+
+# Output & Storage Configuration
+
+output:
+  # Raw data storage
+  save_raw_html: false
+  save_raw_json: true
+  compression: gzip
+  encoding: utf-8
+  
+  # File organization
+  file_naming_pattern: "amazon_{asin}_{timestamp}.json"
+  timestamp_format: "%Y%m%d_%H%M%S"
+  
+  # Local storage
+  local_storage:
+    enabled: true
+    directory: "data/raw"
+    retention_days: 30
+    archive_older_than_days: 7
+  
+  # Cloud storage (optional)
+  s3_storage:
+    enabled: false
+    bucket: "amazon-price-tracker-raw"
+    region: "us-east-1"
+    prefix: "${ENVIRONMENT}/"
+
+# Monitoring & Logging
+
+monitoring:
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_format: "json"
+  log_file: "logs/ingestion.log"
+  log_rotation: "daily"
+  log_retention_days: 30
+  
+  metrics_collection: true
+  metrics_backend: "prometheus"  # prometheus, datadog, custom
+  
+  sentry_integration:
+    enabled: false
+    dsn: "${SENTRY_DSN}"
+    environment: "${ENVIRONMENT}"
+  
+  health_check:
+    enabled: true
+    interval_minutes: 5
+    endpoint: "/health"
+
+# Performance & Optimization
+
+performance:
+  cache_responses: true
+  cache_ttl_minutes: 60
+  cache_directory: "data/cache"
+  
+  use_compression: true
+  gzip_level: 6
+  
+  connection_pooling:
+    enabled: true
+    pool_size: 10
+    max_overflow: 20
+    pool_recycle: 3600
+
+# Advanced Features
+
+features:
+  # JavaScript rendering (for SPAs)
+  javascript_rendering:
+    enabled: false
+    use_selenium: true
+    selenium_driver: "chrome"
+    headless: true
+    timeout: 30
+  
+  # Image processing
+  download_images: false
+  image_directory: "data/images"
+  image_formats: ["jpg", "png"]
+  
+  # Competitor tracking
+  track_competitors: false
+  competitors:
+    - "bestbuy.com"
+    - "walmart.com"
+    - "target.com"
+  
+  # Price prediction
+  enable_prediction: false
+  prediction_model: "prophet"  # prophet, arima, lstm
+
+# Region Specific Settings
+
+regions:
+  default: "us"
+  supported:
+    - code: "us"
+      domain: "amazon.com"
+      currency: "USD"
+      language: "en-US"
+    
+    - code: "uk"
+      domain: "amazon.co.uk"
+      currency: "GBP"
+      language: "en-GB"
+    
+    - code: "de"
+      domain: "amazon.de"
+      currency: "EUR"
+      language: "de-DE"
+    
+    - code: "jp"
+      domain: "amazon.co.jp"
+      currency: "JPY"
+      language: "ja-JP"
+
+# Security & Compliance
+
+security:
+  # Data retention
+  data_retention_days: 730  # 2 years
+  anonymize_pii: true
+  gdpr_compliant: true
+  
+  # Request security
+  validate_ssl: true
+  use_proxy: false
+  proxy_list: []  # List of proxy servers
+  
+  # Rate limiting compliance
+  respect_robots_txt: true
+  crawl_delay: 2.0
+
+# External Integrations
+
+integrations:
+  snowflake:
+    enabled: true
+    raw_table: "RAW.RAW_PRICE_EVENTS"
+    batch_size: 100
+  
+  airflow:
+    enabled: false
+    dag_id: "amazon_price_tracker"
+  
+  webhook:
+    enabled: false
+    url: "${WEBHOOK_URL}"
+    secret: "${WEBHOOK_SECRET}"
+  
+  api_gateway:
+    enabled: false
+    endpoint: "https://api.example.com/price-events"
+    auth_token: "${API_TOKEN}"
+
+# Testing & Development
+
+testing:
+  mock_responses: false
+  test_urls:
+    - "https://httpbin.org/status/200"
+    - "https://httpbin.org/status/429"
+  
+  validation_sample_size: 100
+  run_smoke_tests_on_startup: true
