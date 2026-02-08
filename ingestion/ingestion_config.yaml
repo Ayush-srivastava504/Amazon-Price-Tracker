@@ -139,49 +139,30 @@ storage:
     batch_size: 100
 
 products:
-  # VERIFIED Amazon India ASINs (These are long-standing, popular products)
+  # CONFIRMED WORKING Amazon India ASINs (tested on 2026-02-08)
   sample_asins:
-    # Popular Electronics on Amazon.in (verified working)
-    - "B0D54JD5BR"  # Fire TV Stick 4K
-    - "B0BDJ7CDZ6"  # Echo Dot (5th Gen with Clock)
-    - "B0CNY74Q3B"  # boAt Airdopes
-    - "B09N3ZNHTY"  # Mi Power Bank 3i
+    # Books - VERIFIED WORKING
+    - "8129116758"  # Rich Dad Poor Dad (CONFIRMED WORKING ✓)
     
-    # Books (ISBN format - widely available)
-    - "8172234996"  # The Alchemist
-    - "8129116758"  # Rich Dad Poor Dad
-    - "1846144981"  # The Secret
+    # TO ADD MORE ASINs:
+    # 1. Go to https://www.amazon.in
+    # 2. Search for products (books work best)
+    # 3. Click on a product
+    # 4. Copy ASIN from URL: amazon.in/dp/ASIN_HERE
+    # 5. Add below and test with: python find_valid_asins.py
     
-    # Home & Kitchen (established brands)
-    - "B07HGT6W6D"  # Prestige Pressure Cooker
-    - "B08X2ZH4FW"  # Milton Water Bottle
-    - "B01MG86QP4"  # Pigeon Electric Kettle
-    
-    # Personal Care (trusted brands)
-    - "B00MWTKIK6"  # Gillette Mach 3 Blades
-    - "B08LQZB3TG"  # Mamaearth Hair Oil
+    # Add your own ASINs here after finding them on amazon.in:
+    # - "YOUR_ASIN_HERE"  # Product name
 
   # Product categories for organization
   categories:
-    electronics:
-      - "B0D54JD5BR"
-      - "B0BDJ7CDZ6"
-      - "B0CNY74Q3B"
-      - "B09N3ZNHTY"
-    
     books:
-      - "8172234996"
-      - "8129116758"
-      - "1846144981"
+      - "8129116758"  # Rich Dad Poor Dad (WORKING)
     
-    home_kitchen:
-      - "B07HGT6W6D"
-      - "B08X2ZH4FW"
-      - "B01MG86QP4"
-    
-    personal_care:
-      - "B00MWTKIK6"
-      - "B08LQZB3TG"
+    # Add more categories as you find working ASINs
+    electronics: []
+    home_kitchen: []
+    other: []
 
 batch_processing:
   # Batch settings

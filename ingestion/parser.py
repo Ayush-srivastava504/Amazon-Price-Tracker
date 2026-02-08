@@ -1,4 +1,5 @@
 # HTML parser to extract structured product data from Amazon pages
+import time
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
 import re
