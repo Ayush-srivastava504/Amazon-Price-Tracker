@@ -1,7 +1,7 @@
 """Validator module for Amazon Price Tracker."""
 from .base_validator import BaseValidator
 from .business_rules import BusinessRuleValidator
-from .field_validators import FieldValidator
+from .product_validator import FieldValidator
 from .sanitizers import DataSanitizer
 from .product_validator import ProductValidator
 

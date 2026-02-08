@@ -1,4 +1,4 @@
-"""Anti-bot headers and rotation strategies."""
+# Anti-bot headers and rotation strategies
 import random
 from typing import Dict, List
 from dataclasses import dataclass
@@ -13,15 +13,13 @@ class BrowserProfile:
     accept_encoding: str
     platform: str
 
-class HeaderManager:
-    """Manage and rotate HTTP headers to avoid detection."""
+class HeaderManager:     #Manage and rotate HTTP headers to avoid detection
     
     def __init__(self):
         self._profiles = self._load_browser_profiles()
         self._current_profile_index = 0
         
-    def _load_browser_profiles(self) -> List[BrowserProfile]:
-        """Load realistic browser profiles."""
+    def _load_browser_profiles(self) -> List[BrowserProfile]:   #Load realistic browser profiles
         return [
             BrowserProfile(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -43,8 +41,7 @@ class HeaderManager:
             )
         ]
     
-    def get_headers(self) -> Dict[str, str]:
-        """Get rotated headers for request."""
+    def get_headers(self) -> Dict[str, str]:       # Get rotated headers for request.
         profile = self._profiles[self._current_profile_index]
         self._current_profile_index = (self._current_profile_index + 1) % len(self._profiles)
         

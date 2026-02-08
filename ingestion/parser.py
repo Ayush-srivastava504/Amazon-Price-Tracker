@@ -1,4 +1,4 @@
-"""HTML parser to extract structured product data from Amazon pages."""
+# HTML parser to extract structured product data from Amazon pages
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
 import re
@@ -6,8 +6,7 @@ import structlog
 
 logger = structlog.get_logger()
 
-class AmazonParser:
-    """Parse Amazon HTML to extract product information."""
+class AmazonParser:      # Parse Amazon HTML to extract product information.
     
     def __init__(self):
         self.price_patterns = [
@@ -17,16 +16,6 @@ class AmazonParser:
         ]
         
     def parse_product_page(self, html: str, product_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Parse HTML and extract product data.
-        
-        Args:
-            html: HTML content
-            product_id: Amazon product ID
-            
-        Returns:
-            Dictionary with product data or None if parsing fails
-        """
         if not html:
             return None
             
@@ -104,7 +93,6 @@ class AmazonParser:
         return None
     
     def _extract_availability(self, soup: BeautifulSoup) -> str:
-        """Extract availability status."""
         # Simplified - expand based on actual HTML structure
         availability_elem = soup.find("div", {"id": "availability"})
         if availability_elem:
@@ -116,7 +104,6 @@ class AmazonParser:
         return "unknown"
     
     def _extract_rating(self, soup: BeautifulSoup) -> Optional[float]:
-        """Extract product rating."""
         rating_elem = soup.find("span", {"class": "a-icon-alt"})
         if rating_elem:
             text = rating_elem.get_text(strip=True)
@@ -125,7 +112,6 @@ class AmazonParser:
                 return float(match.group(1))
         return None
     
-    def _extract_seller(self, soup: BeautifulSoup) -> Optional[str]:
-        """Extract seller information."""
+    def _extract_seller(self, soup: BeautifulSoup) -> Optional[str]:        # Extract seller information.
         seller_elem = soup.find("a", {"id": "sellerProfileTriggerId"})
         return seller_elem.get_text(strip=True) if seller_elem else None
