@@ -1,244 +1,70 @@
-"""
-User-Agent headers and HTTP request configuration for Amazon scraping.
-Rotates user agents to avoid blocking and mimics real browser behavior.
-"""
-
+"""Anti-bot headers and rotation strategies."""
 import random
-import json
-from typing import Dict, List, Optional
-from datetime import datetime
-import logging
+from typing import Dict, List
+from dataclasses import dataclass
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
-# Comprehensive list of User-Agents for rotation
-USER_AGENTS = [
-    # Chrome on Windows
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.159 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-    
-    # Firefox on Windows
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:119.0) Gecko/20100101 Firefox/119.0",
-    
-    # Safari on Mac
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
-    
-    # Edge on Windows
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
-    
-    # Chrome on Mac
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    
-    # Mobile User Agents
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
-    "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.210 Mobile Safari/537.36",
-]
-
-# Common referers for Amazon
-REFERERS = [
-    "https://www.google.com/",
-    "https://www.bing.com/",
-    "https://www.amazon.com/",
-    "https://www.ebay.com/",
-    "https://www.walmart.com/",
-]
-
-# Supported languages
-ACCEPT_LANGUAGES = [
-    "en-US,en;q=0.9",
-    "en-GB,en;q=0.9,en-US;q=0.8",
-    "en-CA,en;q=0.9,fr;q=0.8",
-    "en-AU,en;q=0.9",
-]
+@dataclass
+class BrowserProfile:
+    user_agent: str
+    accept_language: str
+    accept_encoding: str
+    platform: str
 
 class HeaderManager:
-    """Manages HTTP headers with rotation and rate limiting"""
+    """Manage and rotate HTTP headers to avoid detection."""
     
-    def __init__(self, config_path: str = "ingestion/ingestion_config.yaml"):
-        self.user_agents = USER_AGENTS
-        self.referers = REFERERS
-        self.languages = ACCEPT_LANGUAGES
-        self.used_agents = []
-        self.rotation_threshold = 50  # Rotate after using this many agents
-        self.config = self._load_config(config_path) if config_path else {}
+    def __init__(self):
+        self._profiles = self._load_browser_profiles()
+        self._current_profile_index = 0
         
-    def _load_config(self, config_path: str) -> Dict:
-        """Load configuration from YAML file"""
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except Exception as e:
-            logger.warning(f"Could not load headers config: {e}")
-            return {}
+    def _load_browser_profiles(self) -> List[BrowserProfile]:
+        """Load realistic browser profiles."""
+        return [
+            BrowserProfile(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                accept_language="en-US,en;q=0.9",
+                accept_encoding="gzip, deflate, br",
+                platform="Win32"
+            ),
+            BrowserProfile(
+                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                accept_language="en-GB,en;q=0.9",
+                accept_encoding="gzip, deflate, br",
+                platform="MacIntel"
+            ),
+            BrowserProfile(
+                user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
+                accept_language="en-US,en;q=0.8",
+                accept_encoding="gzip, deflate",
+                platform="Linux x86_64"
+            )
+        ]
     
-    def get_random_header(self, include_referer: bool = True) -> Dict[str, str]:
-        """
-        Generate random headers that mimic a real browser.
+    def get_headers(self) -> Dict[str, str]:
+        """Get rotated headers for request."""
+        profile = self._profiles[self._current_profile_index]
+        self._current_profile_index = (self._current_profile_index + 1) % len(self._profiles)
         
-        Args:
-            include_referer: Whether to include a referer header
-            
-        Returns:
-            Dictionary of HTTP headers
-        """
         headers = {
-            # Browser identification
-            'User-Agent': random.choice(self.user_agents),
-            
-            # Language preferences
-            'Accept-Language': random.choice(self.languages),
-            'Accept-Encoding': 'gzip, deflate, br',
-            
-            # Content negotiation
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Charset': 'utf-8, iso-8859-1;q=0.5',
-            
-            # Connection
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            
-            # Cache control
-            'Cache-Control': 'max-age=0',
-            
-            # Amazon specific
-            'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'none',
-            'sec-fetch-user': '?1',
+            "User-Agent": profile.user_agent,
+            "Accept-Language": profile.accept_language,
+            "Accept-Encoding": profile.accept_encoding,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Cache-Control": "max-age=0",
         }
         
-        # Add referer if requested
-        if include_referer:
-            headers['Referer'] = random.choice(self.referers)
-        
-        # Add device-specific headers
-        if 'Mobile' in headers['User-Agent']:
-            headers['sec-ch-ua-mobile'] = '?1'
-            headers['sec-ch-ua-platform'] = '"Android"'
-        
-        # Add DNT (Do Not Track) sometimes
-        if random.random() < 0.7:  # 70% chance
-            headers['DNT'] = '1'
-        
-        # Track usage for rotation
-        self._track_usage(headers['User-Agent'])
-        
+        logger.debug("Generated headers", profile_index=self._current_profile_index)
         return headers
     
-    def _track_usage(self, user_agent: str):
-        """Track user agent usage for rotation"""
-        self.used_agents.append((user_agent, datetime.now()))
-        
-        # Clean old records (older than 1 hour)
-        cutoff = datetime.now().timestamp() - 3600
-        self.used_agents = [(ua, ts) for ua, ts in self.used_agents if ts.timestamp() > cutoff]
-    
-    def get_specific_header(self, browser: str = "chrome", device: str = "desktop") -> Dict[str, str]:
-        """
-        Get headers for specific browser/device combination.
-        
-        Args:
-            browser: "chrome", "firefox", "safari", "edge"
-            device: "desktop", "mobile", "tablet"
-            
-        Returns:
-            Dictionary of HTTP headers
-        """
-        # Base headers
-        headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-        }
-        
-        # Browser specific
-        if browser == "chrome":
-            if device == "desktop":
-                headers['User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                headers['sec-ch-ua'] = '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"'
-            else:  # mobile
-                headers['User-Agent'] = "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.210 Mobile Safari/537.36"
-                headers['sec-ch-ua-mobile'] = '?1'
-        
-        elif browser == "firefox":
-            headers['User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
-            headers['sec-fetch-dest'] = 'document'
-            headers['sec-fetch-mode'] = 'navigate'
-        
-        elif browser == "safari":
-            headers['User-Agent'] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
-        
-        elif browser == "edge":
-            headers['User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
-            headers['sec-ch-ua'] = '"Not_A Brand";v="8", "Chromium";v="120", "Microsoft Edge";v="120"'
-        
-        # Device specific
-        if device == "desktop":
-            headers['sec-ch-ua-platform'] = '"Windows"'
-        elif device == "mobile":
-            headers['sec-ch-ua-platform'] = '"Android"'
-            headers['sec-ch-ua-mobile'] = '?1'
-        
-        return headers
-    
-    def get_amazon_api_headers(self) -> Dict[str, str]:
-        """Headers for Amazon API requests"""
-        return {
-            'User-Agent': random.choice(self.user_agents),
-            'Accept': 'application/json',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json',
-            'Origin': 'https://www.amazon.com',
-            'Referer': 'https://www.amazon.com/',
-            'x-amz-acp-params': 'eyJkZXNrdG9wIjp0cnVlfQ==',
-            'x-requested-with': 'XMLHttpRequest',
-        }
-    
-    def should_rotate(self) -> bool:
-        """Determine if we should rotate user agents"""
-        if len(self.used_agents) >= self.rotation_threshold:
-            return True
-        
-        # Check if any agent has been used too frequently
-        agent_counts = {}
-        for ua, _ in self.used_agents:
-            agent_counts[ua] = agent_counts.get(ua, 0) + 1
-        
-        # Rotate if any agent has been used more than 20 times in last hour
-        if any(count > 20 for count in agent_counts.values()):
-            return True
-        
-        return False
-    
-    def get_cookies(self) -> Dict[str, str]:
-        """Get basic cookies that might be needed"""
-        return {
-            'session-id': ''.join(random.choices('0123456789', k=15)),
-            'session-id-time': str(int(datetime.now().timestamp())),
-            'ubid-main': ''.join(random.choices('0123456789ABCDEF', k=10)),
-            'session-token': ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=200)),
-        }
-
-# Singleton instance for easy import
-header_manager = HeaderManager()
-
-# Helper function for easy access
-def get_random_header(include_referer: bool = True) -> Dict[str, str]:
-    """Get random headers (convenience function)"""
-    return header_manager.get_random_header(include_referer)
-
-def get_browser_header(browser: str = "chrome", device: str = "desktop") -> Dict[str, str]:
-    """Get headers for specific browser"""
-    return header_manager.get_specific_header(browser, device)
+    def rotate_user_agent(self):
+        """Manually rotate user agent."""
+        self._current_profile_index = random.randint(0, len(self._profiles) - 1)

@@ -1,210 +1,131 @@
-import re
-import json
-import logging
-from typing import Dict, Optional
+"""HTML parser to extract structured product data from Amazon pages."""
+from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
-from datetime import datetime
+import re
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
-def parse_product_page(html: str, asin: str, url: str) -> Dict:
-    """Parse HTML to extract product information"""
-    soup = BeautifulSoup(html, 'html.parser')
+class AmazonParser:
+    """Parse Amazon HTML to extract product information."""
     
-    product_data = {
-        'asin': asin,
-        'url': url,
-        'timestamp': datetime.utcnow().isoformat(),
-        'scraped_at': datetime.utcnow().isoformat()
-    }
-    
-    # Extract title
-    title = extract_title(soup)
-    if title:
-        product_data['title'] = title
+    def __init__(self):
+        self.price_patterns = [
+            r'\$(\d+\.\d{2})',
+            r'(\d+\.\d{2})\s*USD',
+            r'price\":\"\$\s*(\d+\.\d{2})'
+        ]
         
-    # Extract price
-    price_data = extract_price(soup)
-    product_data.update(price_data)
-    
-    # Extract other metadata
-    metadata = extract_metadata(soup)
-    product_data.update(metadata)
-    
-    # Extract availability
-    availability = extract_availability(soup)
-    product_data['availability'] = availability
-    
-    # Extract ratings
-    ratings = extract_ratings(soup)
-    product_data.update(ratings)
-    
-    # Extract product details
-    details = extract_product_details(soup)
-    product_data['details'] = details
-    
-    return product_data
-
-def extract_title(soup: BeautifulSoup) -> Optional[str]:
-    """Extract product title"""
-    selectors = [
-        '#productTitle',
-        'h1.a-size-large',
-        'span#productTitle',
-        'h1.a-text-bold'
-    ]
-    
-    for selector in selectors:
-        element = soup.select_one(selector)
-        if element:
-            return element.get_text(strip=True)
-    return None
-
-def extract_price(soup: BeautifulSoup) -> Dict:
-    """Extract price information"""
-    price_data = {
-        'current_price': None,
-        'original_price': None,
-        'currency': 'USD',
-        'discount_percentage': None
-    }
-    
-    # Try different price selectors
-    price_selectors = [
-        'span.a-price-whole',
-        'span#priceblock_ourprice',
-        'span#priceblock_dealprice',
-        'span.a-color-price',
-        'span.offer-price'
-    ]
-    
-    for selector in price_selectors:
-        price_element = soup.select_one(selector)
-        if price_element:
-            price_text = price_element.get_text(strip=True)
-            price = extract_float_from_text(price_text)
-            if price:
-                price_data['current_price'] = price
-                break
-    
-    # Try to get original price for discounts
-    original_selectors = [
-        'span.a-text-strike',
-        'span.a-price.a-text-price'
-    ]
-    
-    for selector in original_selectors:
-        original_element = soup.select_one(selector)
-        if original_element:
-            original_text = original_element.get_text(strip=True)
-            original_price = extract_float_from_text(original_text)
-            if original_price:
-                price_data['original_price'] = original_price
-                
-                # Calculate discount
-                if price_data['current_price']:
-                    discount = ((original_price - price_data['current_price']) / original_price) * 100
-                    price_data['discount_percentage'] = round(discount, 2)
-                break
-    
-    return price_data
-
-def extract_float_from_text(text: str) -> Optional[float]:
-    """Extract float from text with currency symbols"""
-    match = re.search(r'[\d,]+\.?\d*', text.replace(',', ''))
-    if match:
-        try:
-            return float(match.group())
-        except ValueError:
+    def parse_product_page(self, html: str, product_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Parse HTML and extract product data.
+        
+        Args:
+            html: HTML content
+            product_id: Amazon product ID
+            
+        Returns:
+            Dictionary with product data or None if parsing fails
+        """
+        if not html:
             return None
-    return None
-
-def extract_metadata(soup: BeautifulSoup) -> Dict:
-    """Extract product metadata"""
-    metadata = {}
+            
+        try:
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            # Extract product title
+            title_element = soup.find("span", {"id": "productTitle"})
+            title = title_element.get_text(strip=True) if title_element else None
+            
+            # Extract price using multiple strategies
+            price = self._extract_price(soup)
+            
+            # Extract availability
+            availability = self._extract_availability(soup)
+            
+            # Extract rating
+            rating = self._extract_rating(soup)
+            
+            # Extract seller
+            seller = self._extract_seller(soup)
+            
+            product_data = {
+                "product_id": product_id,
+                "title": title,
+                "price": price,
+                "currency": "USD",
+                "availability": availability,
+                "rating": rating,
+                "seller": seller,
+                "timestamp": time.time()
+            }
+            
+            logger.debug("Parsed product data", product_id=product_id)
+            return product_data
+            
+        except Exception as e:
+            logger.error("Failed to parse HTML", product_id=product_id, error=str(e))
+            return None
     
-    # Extract brand
-    brand_selectors = [
-        'a#bylineInfo',
-        'a#brand',
-        'tr.po-brand td.a-span9'
-    ]
+    def _extract_price(self, soup: BeautifulSoup) -> Optional[float]:
+        """Extract price using multiple fallback strategies."""
+        # Strategy 1: Direct price element
+        price_element = soup.find("span", {"class": "a-price-whole"})
+        if price_element:
+            price_text = price_element.get_text(strip=True).replace(',', '')
+            try:
+                return float(price_text)
+            except ValueError:
+                pass
+        
+        # Strategy 2: Search in JSON-LD
+        script_tag = soup.find("script", {"type": "application/ld+json"})
+        if script_tag:
+            import json
+            try:
+                data = json.loads(script_tag.string)
+                if isinstance(data, dict) and 'offers' in data:
+                    price = data['offers'].get('price')
+                    if price:
+                        return float(price)
+            except (json.JSONDecodeError, ValueError):
+                pass
+        
+        # Strategy 3: Regex patterns
+        html_str = str(soup)
+        for pattern in self.price_patterns:
+            match = re.search(pattern, html_str)
+            if match:
+                try:
+                    return float(match.group(1))
+                except ValueError:
+                    continue
+        
+        return None
     
-    for selector in brand_selectors:
-        element = soup.select_one(selector)
-        if element:
-            metadata['brand'] = element.get_text(strip=True)
-            break
+    def _extract_availability(self, soup: BeautifulSoup) -> str:
+        """Extract availability status."""
+        # Simplified - expand based on actual HTML structure
+        availability_elem = soup.find("div", {"id": "availability"})
+        if availability_elem:
+            text = availability_elem.get_text(strip=True).lower()
+            if "in stock" in text:
+                return "in_stock"
+            elif "out of stock" in text:
+                return "out_of_stock"
+        return "unknown"
     
-    # Extract category
-    breadcrumb = soup.select_one('#wayfinding-breadcrumbs_feature_div')
-    if breadcrumb:
-        categories = [a.get_text(strip=True) for a in breadcrumb.select('a')]
-        metadata['category'] = categories[-1] if categories else None
-        metadata['category_path'] = ' > '.join(categories)
+    def _extract_rating(self, soup: BeautifulSoup) -> Optional[float]:
+        """Extract product rating."""
+        rating_elem = soup.find("span", {"class": "a-icon-alt"})
+        if rating_elem:
+            text = rating_elem.get_text(strip=True)
+            match = re.search(r'(\d\.\d)', text)
+            if match:
+                return float(match.group(1))
+        return None
     
-    return metadata
-
-def extract_availability(soup: BeautifulSoup) -> str:
-    """Extract availability status"""
-    availability_selectors = [
-        '#availability span',
-        '#availability .a-color-success',
-        '#outOfStock'
-    ]
-    
-    for selector in availability_selectors:
-        element = soup.select_one(selector)
-        if element:
-            text = element.get_text(strip=True).lower()
-            if 'out of stock' in text:
-                return 'out_of_stock'
-            elif 'in stock' in text:
-                return 'in_stock'
-            elif 'available' in text:
-                return 'available'
-    
-    return 'unknown'
-
-def extract_ratings(soup: BeautifulSoup) -> Dict:
-    """Extract rating information"""
-    ratings = {
-        'rating': None,
-        'review_count': None
-    }
-    
-    # Rating
-    rating_element = soup.select_one('span[data-hook="rating-out-of-text"]')
-    if rating_element:
-        rating_text = rating_element.get_text(strip=True)
-        match = re.search(r'([\d.]+) out of 5', rating_text)
-        if match:
-            ratings['rating'] = float(match.group(1))
-    
-    # Review count
-    count_element = soup.select_one('span[data-hook="total-review-count"]')
-    if count_element:
-        count_text = count_element.get_text(strip=True)
-        match = re.search(r'([\d,]+)', count_text)
-        if match:
-            ratings['review_count'] = int(match.group(1).replace(',', ''))
-    
-    return ratings
-
-def extract_product_details(soup: BeautifulSoup) -> Dict:
-    """Extract additional product details"""
-    details = {}
-    
-    # Try to get from technical details table
-    tech_table = soup.select_one('#productDetails_techSpec_section_1')
-    if tech_table:
-        rows = tech_table.select('tr')
-        for row in rows:
-            th = row.select_one('th')
-            td = row.select_one('td')
-            if th and td:
-                key = th.get_text(strip=True).lower().replace(' ', '_')
-                value = td.get_text(strip=True)
-                details[key] = value
-    
-    return details
+    def _extract_seller(self, soup: BeautifulSoup) -> Optional[str]:
+        """Extract seller information."""
+        seller_elem = soup.find("a", {"id": "sellerProfileTriggerId"})
+        return seller_elem.get_text(strip=True) if seller_elem else None

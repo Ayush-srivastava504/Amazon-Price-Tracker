@@ -11,13 +11,11 @@ class Extract:
         self.config = self.load_config(config_path)
         self.scraper = AmazonScraper(config_path)
         
-    def load_config(self, config_path: str) -> Dict:
-        """Load configuration from YAML file"""
+    def load_config(self, config_path: str) -> Dict:    #Load configuration from YAML file
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
     
-    def get_product_urls(self) -> List[str]:
-        """Get list of product URLs to scrape"""
+    def get_product_urls(self) -> List[str]:        # Get list of product URLs to scrape
         # Could be from config file, database, or external source
         urls = self.config.get('product_urls', [])
         
@@ -31,8 +29,7 @@ class Extract:
                 
         return urls
     
-    def run(self) -> pd.DataFrame:
-        """Run extraction process"""
+    def run(self) -> pd.DataFrame:       # Run extraction process
         logger.info("Starting extraction process")
         
         # Get URLs to scrape
@@ -55,8 +52,7 @@ class Extract:
             logger.warning("No data scraped")
             return pd.DataFrame()
     
-    def run_with_checkpoint(self, checkpoint_file: str = "data/last_run.txt") -> pd.DataFrame:
-        """Run extraction with checkpointing to track last run"""
+    def run_with_checkpoint(self, checkpoint_file: str = "data/last_run.txt") -> pd.DataFrame:      # Run extraction with checkpointing to track last run
         import os
         from datetime import datetime
         

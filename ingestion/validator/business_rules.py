@@ -1,43 +1,96 @@
-from typing import List, Dict
-import logging
+"""Business rule validators for domain-specific logic."""
+from typing import Dict, Any, Tuple, Optional
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
-def validate_business_logic(product_data: Dict) -> List[str]:
-    """Additional business logic validations"""
-    errors = []
-
-    # Check price consistency
-    current_price = product_data.get('current_price')
-    original_price = product_data.get('original_price')
-
-    if current_price and original_price:
-        if current_price > original_price:
-            errors.append(f"Current price ({current_price}) > original price ({original_price})")
-
-        # Calculate expected discount
-        expected_discount = ((original_price - current_price) / original_price * 100)
-        provided_discount = product_data.get('discount_percentage')
-
-        if provided_discount is not None:
-            discount_diff = abs(provided_discount - expected_discount)
-            if discount_diff > 5.0:  # Allow 5% difference for rounding
-                errors.append(f"Discount mismatch: provided={provided_discount}%, calculated={expected_discount:.2f}%")
-
-    # Check if rating exists but no review count
-    if 'rating' in product_data and product_data['rating'] is not None:
-        if 'review_count' not in product_data or product_data['review_count'] is None:
-            logger.warning(f"Rating exists but no review count for ASIN {product_data.get('asin')}")
-
-    # Check if review count exists but no rating
-    if 'review_count' in product_data and product_data['review_count'] is not None:
-        if 'rating' not in product_data or product_data['rating'] is None:
-            logger.warning(f"Review count exists but no rating for ASIN {product_data.get('asin')}")
-
-    # Validate currency
-    if 'currency' in product_data and product_data['currency']:
-        valid_currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY']
-        if product_data['currency'] not in valid_currencies:
-            errors.append(f"Invalid currency: {product_data['currency']}")
-
-    return errors
+class BusinessRuleValidator:
+    """Validate business rules and constraints."""
+    
+    def __init__(self):
+        self.price_thresholds = {
+            'min_price': 0.01,
+            'max_price': 1000000,
+            'suspicious_price': 999999.99  # Often used as placeholder
+        }
+        
+        self.required_fields = ['product_id', 'title', 'price', 'timestamp']
+        
+    def validate_required_fields(self, data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """Check all required fields are present."""
+        missing_fields = []
+        
+        for field in self.required_fields:
+            if field not in data or data[field] is None:
+                missing_fields.append(field)
+        
+        if missing_fields:
+            return False, f"Missing required fields: {', '.join(missing_fields)}"
+        
+        return True, None
+    
+    def validate_price_bounds(self, data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """Validate price is within acceptable business bounds."""
+        price = data.get('price')
+        
+        if price is None:
+            return True, None  # Price can be null for out-of-stock
+        
+        try:
+            price_float = float(price)
+            
+            # Check for suspicious placeholder prices
+            if price_float == self.price_thresholds['suspicious_price']:
+                logger.warning("Suspicious price detected", price=price_float)
+                return False, "Suspicious price (placeholder value)"
+            
+            # Check min/max bounds
+            if price_float < self.price_thresholds['min_price']:
+                return False, f"Price below minimum: {price_float}"
+            
+            if price_float > self.price_thresholds['max_price']:
+                return False, f"Price above maximum: {price_float}"
+            
+            return True, None
+            
+        except (ValueError, TypeError):
+            return False, f"Invalid price for business validation: {price}"
+    
+    def validate_product_availability(self, data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """Validate availability rules."""
+        availability = data.get('availability', '').lower()
+        price = data.get('price')
+        
+        # If product is in stock, price should not be null
+        if availability in ['in_stock', 'available'] and price is None:
+            return False, "In-stock product must have a price"
+        
+        # If product is out of stock, price can be null
+        if availability in ['out_of_stock', 'unavailable']:
+            logger.info("Product out of stock", product_id=data.get('product_id'))
+            return True, None
+        
+        return True, None
+    
+    def validate_data_freshness(self, data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """Ensure data is not too old."""
+        from datetime import datetime
+        
+        timestamp = data.get('timestamp')
+        
+        if not timestamp:
+            return False, "Timestamp missing for freshness check"
+        
+        try:
+            data_time = datetime.fromtimestamp(float(timestamp))
+            current_time = datetime.now()
+            
+            # Data should be less than 24 hours old
+            time_diff = current_time - data_time
+            if time_diff.total_seconds() > 86400:  # 24 hours
+                return False, f"Data is too old: {time_diff}"
+            
+            return True, None
+            
+        except (ValueError, TypeError):
+            return False, f"Invalid timestamp for freshness check: {timestamp}"
