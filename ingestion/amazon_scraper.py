@@ -6,8 +6,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import structlog
 
-from .headers import HeaderManager
-from .validators import validate_product_data
+from .header import HeaderManager
+from .validator import product_validator
 
 logger = structlog.get_logger()
 

@@ -28,8 +28,8 @@ class ValidationContext:
     
     def __init__(self, data: Dict[str, Any]):
         self.data = data
-        self.errors: List[str] = []
-        self.warnings: List[str] = []
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
     
     def add_error(self, error: str):
         """Add validation error."""
@@ -47,13 +47,13 @@ class ValidatorChain:
     """Chain of responsibility pattern for validators."""
     
     def __init__(self):
-        self.validators: List[BaseValidator] = []
+        self.validators: list[BaseValidator] = []
     
     def add_validator(self, validator: BaseValidator):
         """Add validator to chain."""
         self.validators.append(validator)
     
-    def validate(self, data: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def validate(self, data: Dict[str, Any]) -> Tuple[bool, list[str]]:
         """Run all validators in chain."""
         context = ValidationContext(data)
         

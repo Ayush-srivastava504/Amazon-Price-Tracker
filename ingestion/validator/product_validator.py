@@ -115,3 +115,4 @@ class BusinessValidationAdapter(BaseValidator):
     
     def sanitize(self, data: Dict[str, Any]) -> Dict[str, Any]:
         return data  # Business validator doesn't sanitize
+    
