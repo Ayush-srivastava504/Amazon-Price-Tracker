@@ -39,23 +39,28 @@ def test_asin(asin):
         return None, f"Error: {str(e)}"
 
 
-# List of commonly used product ASINs to test
-# These are generic products that often exist on multiple Amazon marketplaces
+# List of ASINs to test on Amazon India
+# Add your own ASINs here to test them
 test_asins = [
-    # Try these common categories
-    # Books (ISBNs work across regions)
-    "8172234996",  # The Alchemist
-    "8129116758",  # Rich Dad Poor Dad
-    "0143442295",  # Atomic Habits (Indian Edition)
+    # CONFIRMED WORKING (tested 2026-02-08)
+    "8129116758",  # Rich Dad Poor Dad - ✓ WORKING
     
-    # Common electronics that might be on Amazon.in
-    "B0BSHF69T5",  # Example mobile phone
-    "B09B93ZDG4",  # Example Echo device
-    "B07FZ8S74R",  # Example power bank
+    # Popular books to test (likely to work)
+    # Search these on amazon.in and replace with actual ASINs
+    "0143442295",  # Atomic Habits (if available)
+    "8172234996",  # The Alchemist (if available)
+    "819351749X",  # Ikigai (Indian Edition)
+    "8129135736",  # The Power of Your Subconscious Mind
     
-    # Home products
-    "B01MG86QP4",  # Example kettle
-    "B08X2ZH4FW",  # Example bottle
+    # To find more ASINs:
+    # 1. Go to https://www.amazon.in
+    # 2. Search for popular products
+    # 3. Click on a product
+    # 4. Copy ASIN from URL (after /dp/)
+    # 5. Add below:
+    
+    # Add your own ASINs to test:
+    # "YOUR_ASIN_HERE",
 ]
 
 print("Testing ASINs on Amazon India...")
