@@ -67,27 +67,27 @@ def test_ingestion_flow():
         product_data = parser.parse_product_page(html, asin)
         
         if not product_data:
-            print("  ❌ Failed to parse product data")
+            print(" Failed to parse product data")
             continue
         
-        print(f"  ✓ Parsed data: {product_data.get('title', 'N/A')[:50]}...")
+        print(f" Parsed data: {product_data.get('title', 'N/A')[:50]}...")
         
         # Step 3: Validate
         print("  Step 3: Validating data...")
         is_valid, error = validator.validate(product_data)
         
         if not is_valid:
-            print(f"  ❌ Validation failed: {error}")
+            print(f" Validation failed: {error}")
             continue
         
-        print(f"  ✓ Data validation passed")
+        print(f" Data validation passed")
         
         # Step 4: Sanitize
         print("  Step 4: Sanitizing data...")
         sanitized_data = validator.sanitize(product_data)
         
         # Display results
-        print("\n  📊 Results:")
+        print("\n  Results:")
         print(f"     Title: {sanitized_data.get('title', 'N/A')[:70]}...")
         print(f"     Price: ₹{sanitized_data.get('price', 'N/A')}")
         print(f"     Availability: {sanitized_data.get('availability', 'N/A')}")

@@ -1,15 +1,13 @@
 # Amazon Price Tracker - India Configuration
-# Updated: 2026-02-08
-# Configured for Amazon.in
 
 environment: "development"  # development, staging, production
 
 scraper:
   base_url: "https://www.amazon.in"
-  timeout: 15  # Increased timeout for slower responses
-  max_retries: 5  # Increased retry attempts
-  request_delay: 3  # Increased delay to avoid rate limiting
-  max_requests_per_minute: 20  # Rate limiting
+  timeout: 15                     # Increased timeout for slower responses
+  max_retries: 5                   # Increased retry attempts
+  request_delay: 3                  # Increased delay to avoid rate limiting
+  max_requests_per_minute: 20           # Rate limiting
   max_html_size_mb: 5
   follow_redirects: true
   verify_ssl: true
@@ -20,16 +18,16 @@ scraper:
   
   # Bot detection evasion
   enable_proxy_rotation: false
-  proxy_list: []  # Add proxies if needed
+  proxy_list: []                     # Add proxies if needed
   randomize_delay: true
   min_delay: 2
   max_delay: 5
 
 headers:
-  rotation_strategy: "sequential"  # sequential, random
-  rotate_every: 15  # requests
+  rotation_strategy: "sequential"                   # sequential, random
+  rotate_every: 15                                            # requests
   
-  # Browser profiles with Indian locale
+  # Browser profiles with Indian locals
   user_agents:
     - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     - "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
@@ -74,8 +72,8 @@ parsing:
 validation:
   # Price validation rules (in INR)
   min_price: 1.0
-  max_price: 10000000  # 1 crore INR
-  price_change_threshold: 0.5  # 50% change triggers alert
+  max_price: 10000000                                  # 1 crore INR
+  price_change_threshold: 0.5                          # 50% change triggers alert
   
   # Required fields
   required_fields:
@@ -109,7 +107,7 @@ monitoring:
   enable_metrics: true
   metrics_port: 9090
   scrape_timeout_seconds: 30
-  success_rate_threshold: 0.8  # Alert if success rate drops below 80%
+  success_rate_threshold: 0.8                          # Alert if success rate drops below 80%
   
   # Error tracking
   max_consecutive_errors: 5
@@ -134,35 +132,38 @@ storage:
     
   # Database settings
   database:
-    type: "sqlite"  # sqlite, postgres, mysql
+    type: "sqlite"                                             # sqlite, postgres, mysql
     connection_string: "sqlite:///data/price_tracker.db"
     batch_size: 100
 
 products:
-  # CONFIRMED WORKING Amazon India ASINs (tested on 2026-02-08)
+  # Amazon India ASINs (User provided - 2026-02-09)
   sample_asins:
-    # Books - VERIFIED WORKING
-    - "8129116758"  # Rich Dad Poor Dad (CONFIRMED WORKING ✓)
+    # Top 3 Best ASINs (Books + Products)
+    - "8186775218"                 # Book ASIN (HIGH PRIORITY)
+    - "939008525X"                  # Book ASIN (HIGH PRIORITY)
+    - "B0FM6B9Z45"                   # Product ASIN (HIGH PRIORITY)
     
-    # TO ADD MORE ASINs:
-    # 1. Go to https://www.amazon.in
-    # 2. Search for products (books work best)
-    # 3. Click on a product
-    # 4. Copy ASIN from URL: amazon.in/dp/ASIN_HERE
-    # 5. Add below and test with: python find_valid_asins.py
-    
-    # Add your own ASINs here after finding them on amazon.in:
-    # - "YOUR_ASIN_HERE"  # Product name
+    # Additional ASINs (backup/testing)
+    - "8183220185"  # Book ASIN
+    - "9355991479"  # Book ASIN
+    - "9359649414"  # Book ASIN
+    - "B0FVS76HKH"  # Product ASIN
+    - "B0FVS5PRCH"  # Product ASIN
 
   # Product categories for organization
   categories:
     books:
-      - "8129116758"  # Rich Dad Poor Dad (WORKING)
+      - "8186775218"
+      - "939008525X"
+      - "8183220185"
+      - "9355991479"
+      - "9359649414"
     
-    # Add more categories as you find working ASINs
-    electronics: []
-    home_kitchen: []
-    other: []
+    products:
+      - "B0FM6B9Z45"
+      - "B0FVS76HKH"
+      - "B0FVS5PRCH"
 
 batch_processing:
   # Batch settings
@@ -182,8 +183,8 @@ batch_processing:
 
 logging:
   # Logging configuration
-  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
-  format: "json"  # json, text
+  level: "INFO"                  # DEBUG, INFO, WARNING, ERROR
+  format: "json"                   # json, text
   file:
     enabled: true
     path: "./logs/price_tracker.log"
