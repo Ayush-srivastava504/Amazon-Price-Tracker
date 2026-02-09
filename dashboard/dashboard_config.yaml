@@ -1,0 +1,32 @@
+# Dashboard config 
+
+# Chart colors - enough for 5-10 products
+colors:
+  - "#1f77b4"  # blue
+  - "#ff7f0e"  # orange
+  - "#2ca02c"  # green
+  - "#d62728"  # red
+  - "#9467bd"  # purple
+
+# Default time ranges (days)
+time_ranges:
+  default: 30
+  options: [7, 30, 90, 180]
+
+# UI settings
+ui:
+  page_title: "Amazon Price Tracker"
+  page_icon: "📈"
+  layout: "wide"  # centered or wide
+  initial_sidebar_state: "expanded"
+
+# Product limits (avoid loading too much data)
+limits:
+  max_products_chart: 10
+  max_products_table: 50
+  max_history_days: 365
+
+# Alert thresholds
+alerts:
+  price_change_warning: 10  # percent
+  out_of_stock_warning: 3   # days
