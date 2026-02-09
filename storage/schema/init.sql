@@ -45,3 +45,9 @@ CREATE TABLE daily_price_summary (
     in_stock BOOLEAN,
     PRIMARY KEY (date, product_id)
 );
+
+CREATE TABLE IF NOT EXISTS pipeline_state (
+    pipeline_name VARCHAR PRIMARY KEY,
+    last_run_timestamp TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

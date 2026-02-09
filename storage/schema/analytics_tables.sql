@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS price_alerts (
     alert_id UUID DEFAULT gen_random_uuid(),
     product_id VARCHAR NOT NULL,
     old_price DECIMAL(10,2),
-    old_price DECIMAL(10,2),
     new_price DECIMAL(10,2),
     change_pct DECIMAL(5,2),
     alerted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

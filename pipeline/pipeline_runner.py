@@ -7,7 +7,7 @@ from datetime import datetime
 import sys
 from typing import Optional
 from pathlib import Path
-import duckdb   
+import duckdb
 from storage.duckdb_setup import get_connection
 
 
@@ -50,6 +50,17 @@ class PipelineRunner:         # Orchestrates the ETL pipeline
         logger.info(f"Starting pipeline run at {self.results['start_time']}")
 
         try:
+            # --- PIPELINE STATE: READ LAST RUN ---
+            if self.db_conn:
+                last_run = self.db_conn.execute("""
+                    SELECT last_run_timestamp
+                    FROM pipeline_state
+                    WHERE pipeline_name = 'amazon_scraper'
+                """).fetchone()
+
+                if last_run:
+                    logger.info(f"Last pipeline run at {last_run[0]}")
+
             # STEP 1: EXTRACT
             logger.info("=== EXTRACT PHASE ===")
             if self.use_live_scraping and product_ids:
@@ -93,12 +104,22 @@ class PipelineRunner:         # Orchestrates the ETL pipeline
             # STEP 5: LOAD TRANSFORMED (to final table)
             logger.info("=== LOAD TRANSFORMED PHASE ===")
             if self.db_conn and transformed_data:
-                loaded_clean = load_to_clean_tables(transformed_data)  
+                loaded_clean = load_to_clean_tables(transformed_data)
                 logger.info(
                     f"Loaded {loaded_clean} transformed records to clean tables"
                 )
             else:
                 logger.warning("No DB connection, skipping clean load")
+
+            # --- PIPELINE STATE: UPDATE AFTER SUCCESS ---
+            if self.db_conn:
+                self.db_conn.execute("""
+                    INSERT INTO pipeline_state (pipeline_name, last_run_timestamp)
+                    VALUES ('amazon_scraper', CURRENT_TIMESTAMP)
+                    ON CONFLICT (pipeline_name) DO UPDATE SET
+                        last_run_timestamp = excluded.last_run_timestamp,
+                        updated_at = now()
+                """)
 
             # Update results
             self.results['records_processed'] = len(transformed_data)
@@ -145,13 +166,13 @@ def main():          # Command line entry point
         product_ids = [pid.strip() for pid in args.products.split(',')]
         logger.info(f"Running pipeline for {len(product_ids)} products")
 
-    # Initialize DuckDB connection (FIXED)
+    # Initialize DuckDB connection
     db_conn = get_connection("data/amazon_prices.duckdb")
     logger.info("Connected to DuckDB at data/amazon_prices.duckdb")
 
     # Initialize pipeline
     runner = PipelineRunner(
-        db_conn=db_conn,          
+        db_conn=db_conn,
         use_live_scraping=args.live
     )
 

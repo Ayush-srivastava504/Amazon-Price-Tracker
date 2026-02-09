@@ -21,16 +21,15 @@ def load_to_raw_table(data: List[Dict[str, Any]], db_conn) -> int:
             record["_loaded_at"] = datetime.utcnow().isoformat()
 
             query = """
-                INSERT INTO raw_scrapes
-                (raw_id, product_id, raw_json, loaded_at)
+              INSERT INTO raw_scrapes (scrape_id, product_id, scraped_data, success)
                 VALUES (?, ?, ?, ?)
             """
 
             params = (
                 raw_id,
-                record.get("product_id", "unknown"),
+                record.get('product_id'),
                 json.dumps(record),
-                datetime.utcnow()
+                True
             )
 
             db_conn.execute(query, params)
