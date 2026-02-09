@@ -11,11 +11,8 @@ logger = structlog.get_logger()
 
 class AmazonParser:      # Turns Amazon HTML into structured data
     
-    def parse_product(self, html: str, product_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Main parsing function. Returns None if parsing fails.
-        Output is a plain dict ready for JSON.dumps().
-        """
+    def parse_product(self, html: str, product_id: str) -> Optional[Dict[str, Any]]:     #Output is a plain dict ready for JSON.dumps()
+
         if not html or not html.strip():
             logger.warning(f"No HTML for {product_id}")
             return None
@@ -63,8 +60,7 @@ class AmazonParser:      # Turns Amazon HTML into structured data
             logger.error(f"Parse failed for {product_id}: {e}")
             return None
     
-    def _extract_price(self, soup) -> Optional[float]:
-        """Try different ways to find the price. Amazon changes this often."""
+    def _extract_price(self, soup) -> Optional[float]:    # Try different ways to find the price. Amazon changes this often
         
         # Method 1: Modern price element
         price_elem = soup.find("span", class_="a-price-whole")
@@ -113,7 +109,6 @@ class AmazonParser:      # Turns Amazon HTML into structured data
         return None
     
     def _check_availability(self, soup) -> str:
-        """Check if product is in stock."""
         # Look for availability message
         availability_elem = soup.find("div", id="availability")
         if availability_elem:
@@ -131,7 +126,6 @@ class AmazonParser:      # Turns Amazon HTML into structured data
         return "unknown"
     
     def _extract_rating(self, soup) -> Optional[float]:
-        """Extract star rating if available."""
         rating_elem = soup.find("span", class_="a-icon-alt")
         if rating_elem:
             text = rating_elem.get_text(strip=True)
