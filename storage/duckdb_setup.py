@@ -91,7 +91,7 @@ def update_product(product_data):      #Update product and price history. This i
             availability = excluded.availability,
             rating = excluded.rating,
             seller = excluded.seller,
-            last_seen_at = CURRENT_TIMESTAMP,
+            last_seen_at = now(),
             is_active = true
     """, (
         pid,
