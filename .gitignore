@@ -27,7 +27,6 @@ Thumbs.db
 .vscode/
 
 # Runtime data
-data/
 logs/
 __pycache__/
 .env
