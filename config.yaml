@@ -1,0 +1,24 @@
+# Amazon India scraper config - minimal, only what we actually use
+
+amazon:
+  base_url: "https://www.amazon.in"
+  timeout: 15  # seconds
+  request_delay: 3.0  # seconds between requests
+  max_retries: 2
+
+products:
+  # Example ASINs - replace with your own
+  asins:
+    - "8186775218"   # Book
+    - "939008525X"   # Book  
+    - "B0FM6B9Z45"   # Product
+
+storage:
+  # Where to save results
+  output_dir: "./data"
+  save_html: false  # Set to true for debugging
+  save_json: true
+
+logging:
+  level: "INFO"
+  log_file: "./logs/scraper.log"

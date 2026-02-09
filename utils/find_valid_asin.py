@@ -1,8 +1,5 @@
-"""
-Ultra-Safe Amazon India ASIN Finder - ALL CATEGORIES
-Maximum safety, no 503 errors, searches all product types
-Saves results to utils/ folder
-"""
+# Amazon India ASIN Finder - ALL CATEGORIES
+
 
 import requests
 from bs4 import BeautifulSoup
@@ -16,7 +13,6 @@ from datetime import datetime
 
 
 class UltraSafeASINFinder:
-    """Ultra-conservative ASIN finder to avoid any blocking"""
     
     def __init__(self):
         self.base_url = "https://www.amazon.in"
@@ -539,5 +535,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\n❌ Unexpected error: {e}")
         import traceback
+        
         traceback.print_exc()
         

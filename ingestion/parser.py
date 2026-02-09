@@ -1,118 +1,145 @@
-# HTML parser to extract structured product data from Amazon pages
-import time
+# Parses Amazon product pages. Extracts price, title, etc.
+
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
 import re
+import json
+import time
 import structlog
 
 logger = structlog.get_logger()
 
-class AmazonParser:      # Parse Amazon HTML to extract product information.
+class AmazonParser:      # Turns Amazon HTML into structured data
     
-    def __init__(self):
-        self.price_patterns = [
-            r'\$(\d+\.\d{2})',
-            r'(\d+\.\d{2})\s*USD',
-            r'price\":\"\$\s*(\d+\.\d{2})'
-        ]
-        
-    def parse_product_page(self, html: str, product_id: str) -> Optional[Dict[str, Any]]:
-        if not html:
+    def parse_product(self, html: str, product_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Main parsing function. Returns None if parsing fails.
+        Output is a plain dict ready for JSON.dumps().
+        """
+        if not html or not html.strip():
+            logger.warning(f"No HTML for {product_id}")
             return None
-            
+        
         try:
             soup = BeautifulSoup(html, 'html.parser')
             
-            # Extract product title
-            title_element = soup.find("span", {"id": "productTitle"})
-            title = title_element.get_text(strip=True) if title_element else None
+            # Product title - critical field
+            title_elem = soup.find("span", id="productTitle")
+            title = title_elem.get_text(strip=True) if title_elem else None
             
-            # Extract price using multiple strategies
+            # Price - the main thing we care about
             price = self._extract_price(soup)
             
-            # Extract availability
-            availability = self._extract_availability(soup)
+            # Availability
+            availability = self._check_availability(soup)
             
-            # Extract rating
+            # Rating (optional)
             rating = self._extract_rating(soup)
             
-            # Extract seller
-            seller = self._extract_seller(soup)
+            # Seller (optional)
+            seller_elem = soup.find("a", id="sellerProfileTriggerId")
+            seller = seller_elem.get_text(strip=True) if seller_elem else None
             
-            product_data = {
+            # Build result - plain dict only, no custom objects
+            result = {
                 "product_id": product_id,
                 "title": title,
                 "price": price,
-                "currency": "USD",
+                "currency": "INR",  # Hardcoded for Amazon.in
                 "availability": availability,
                 "rating": rating,
                 "seller": seller,
-                "timestamp": time.time()
+                "scraped_at": time.time(),
+                "url": f"https://www.amazon.in/dp/{product_id}"
             }
             
-            logger.debug("Parsed product data", product_id=product_id)
-            return product_data
+            # Clean up None values for better JSON
+            result = {k: v for k, v in result.items() if v is not None}
+            
+            logger.debug(f"Parsed {product_id}, price={price}")
+            return result
             
         except Exception as e:
-            logger.error("Failed to parse HTML", product_id=product_id, error=str(e))
+            logger.error(f"Parse failed for {product_id}: {e}")
             return None
     
-    def _extract_price(self, soup: BeautifulSoup) -> Optional[float]:
-        """Extract price using multiple fallback strategies."""
-        # Strategy 1: Direct price element
-        price_element = soup.find("span", {"class": "a-price-whole"})
-        if price_element:
-            price_text = price_element.get_text(strip=True).replace(',', '')
+    def _extract_price(self, soup) -> Optional[float]:
+        """Try different ways to find the price. Amazon changes this often."""
+        
+        # Method 1: Modern price element
+        price_elem = soup.find("span", class_="a-price-whole")
+        if price_elem:
+            price_text = price_elem.get_text(strip=True).replace(',', '')
             try:
                 return float(price_text)
-            except ValueError:
+            except:
                 pass
         
-        # Strategy 2: Search in JSON-LD
-        script_tag = soup.find("script", {"type": "application/ld+json"})
-        if script_tag:
-            import json
+        # Method 2: JSON-LD data (often more reliable)
+        script = soup.find("script", type="application/ld+json")
+        if script:
             try:
-                data = json.loads(script_tag.string)
-                if isinstance(data, dict) and 'offers' in data:
-                    price = data['offers'].get('price')
-                    if price:
-                        return float(price)
-            except (json.JSONDecodeError, ValueError):
+                data = json.loads(script.string)
+                # Navigate the JSON structure
+                if isinstance(data, dict):
+                    offers = data.get('offers')
+                    if isinstance(offers, dict):
+                        price = offers.get('price')
+                        if price:
+                            return float(price)
+            except (json.JSONDecodeError, ValueError, TypeError):
                 pass
         
-        # Strategy 3: Regex patterns
-        html_str = str(soup)
-        for pattern in self.price_patterns:
-            match = re.search(pattern, html_str)
+        # Method 3: Old-style price block
+        price_selectors = [
+            "span#priceblock_ourprice",
+            "span#priceblock_dealprice",
+            "span.a-price",
+            "span.a-color-price"
+        ]
+        
+        for selector in price_selectors:
+            elem = soup.select_one(selector)
+            if elem:
+                text = elem.get_text(strip=True)
+                # Extract numbers from text like "₹1,234.56"
+                numbers = re.findall(r'[\d,]+\.?\d*', text)
+                if numbers:
+                    try:
+                        return float(numbers[0].replace(',', ''))
+                    except:
+                        continue
+        
+        return None
+    
+    def _check_availability(self, soup) -> str:
+        """Check if product is in stock."""
+        # Look for availability message
+        availability_elem = soup.find("div", id="availability")
+        if availability_elem:
+            text = availability_elem.get_text(strip=True).lower()
+            if "out of stock" in text or "currently unavailable" in text:
+                return "out_of_stock"
+            if "in stock" in text:
+                return "in_stock"
+        
+        # Check add to cart button as fallback
+        cart_button = soup.find("input", id="add-to-cart-button")
+        if cart_button:
+            return "in_stock"
+        
+        return "unknown"
+    
+    def _extract_rating(self, soup) -> Optional[float]:
+        """Extract star rating if available."""
+        rating_elem = soup.find("span", class_="a-icon-alt")
+        if rating_elem:
+            text = rating_elem.get_text(strip=True)
+            # Looks like "4.3 out of 5 stars"
+            match = re.search(r'(\d\.\d)', text)
             if match:
                 try:
                     return float(match.group(1))
-                except ValueError:
-                    continue
-        
+                except:
+                    pass
         return None
-    
-    def _extract_availability(self, soup: BeautifulSoup) -> str:
-        # Simplified - expand based on actual HTML structure
-        availability_elem = soup.find("div", {"id": "availability"})
-        if availability_elem:
-            text = availability_elem.get_text(strip=True).lower()
-            if "in stock" in text:
-                return "in_stock"
-            elif "out of stock" in text:
-                return "out_of_stock"
-        return "unknown"
-    
-    def _extract_rating(self, soup: BeautifulSoup) -> Optional[float]:
-        rating_elem = soup.find("span", {"class": "a-icon-alt"})
-        if rating_elem:
-            text = rating_elem.get_text(strip=True)
-            match = re.search(r'(\d\.\d)', text)
-            if match:
-                return float(match.group(1))
-        return None
-    
-    def _extract_seller(self, soup: BeautifulSoup) -> Optional[str]:        # Extract seller information.
-        seller_elem = soup.find("a", {"id": "sellerProfileTriggerId"})
-        return seller_elem.get_text(strip=True) if seller_elem else None

@@ -62,6 +62,5 @@ class HeaderManager:     #Manage and rotate HTTP headers to avoid detection
         logger.debug("Generated headers", profile_index=self._current_profile_index)
         return headers
     
-    def rotate_user_agent(self):
-        """Manually rotate user agent."""
+    def rotate_user_agent(self):    #Manually rotate user agent.
         self._current_profile_index = random.randint(0, len(self._profiles) - 1)

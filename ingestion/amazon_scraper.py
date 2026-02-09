@@ -1,209 +1,114 @@
-"""HTTP scraper for Amazon India product pages"""
+
+# Simple Amazon India scraper. Gets HTML, avoids bans, nothing fancy.
 
 import time
 import random
 import requests
 from typing import Optional, Dict, Any, List
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import structlog
-
-from .header import HeaderManager                # correct relative import
 
 logger = structlog.get_logger()
 
+# Real browser headers we actually use
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+]
 
-class AmazonScraper:                               #  Amazon India product page scraper with:- retry logic,- rate limiting,- header rotation, - bot detection handling
-    def __init__(self, config: Dict[str, Any]):
-        # Core config - Amazon India specific
-        self.base_url: str = config.get(
-            "base_url", "https://www.amazon.in"
-        )
-        self.timeout: int = config.get("timeout", 10)
-        self.max_retries: int = config.get("max_retries", 3)
-        self.request_delay: float = float(config.get("request_delay", 2.0))
-        self.max_html_size_mb: int = config.get("max_html_size_mb", 5)
-
-        # Retry config 
-        self.retry_backoff_factor: float = config.get(
-            "retry_backoff_factor", 1.0
-        )
-        self.retry_status_codes: List[int] = config.get(
-            "retry_status_codes", [429, 500, 502, 503, 504]
-        )
-
-        # Delay randomization
-        self.randomize_delay = config.get("randomize_delay", False)
-        self.min_delay = config.get("min_delay", 1.0)
-        self.max_delay = config.get("max_delay", 3.0)
-
-        # Bot indicators
+class AmazonScraper:
+    
+    def __init__(self, config: Optional[Dict] = None):
+        # Defaults that work for Amazon India
+        config = config or {}
+        self.base_url = config.get("base_url", "https://www.amazon.in")
+        self.timeout = config.get("timeout", 15)
+        self.request_delay = config.get("request_delay", 3.0)
+        self.max_retries = config.get("max_retries", 3)
+        
+        # Bot detection patterns - if we see these, Amazon caught us
         self.bot_indicators = [
             "robot check",
             "captcha",
             "enter the characters you see below",
             "sorry, we just need to make sure you're not a robot",
-            "to discuss automated access to amazon data",
-            "/errors/validatecaptcha",
-            "api-services-support@amazon.com",  # India-specific
         ]
-
-        self.session = self._create_session()
-        self.header_manager = HeaderManager()
-
-        logger.debug(                                       #Scraper initialized for Amazon India
-            base_url=self.base_url,
-            timeout=self.timeout,
-            max_retries=self.max_retries,
-        )
-
-    # Session setup
-    def _create_session(self) -> requests.Session:
-        session = requests.Session()
-
-        retry_strategy = Retry(
-            total=self.max_retries,
-            backoff_factor=self.retry_backoff_factor,
-            status_forcelist=self.retry_status_codes,
-            allowed_methods=["GET"],
-            raise_on_status=False,
-        )
-
-        adapter = HTTPAdapter(
-            max_retries=retry_strategy,
-            pool_connections=10,
-            pool_maxsize=10,
-        )
-
-        session.mount("https://", adapter)
-        session.mount("http://", adapter)
-
-        session.headers.update({
-            "Accept-Language": "en-IN,en-GB;q=0.9,en;q=0.8,hi;q=0.7",
+        
+        # Simple session with retries
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Accept-Language": "en-IN,en;q=0.9,hi;q=0.8",
             "Accept-Encoding": "gzip, deflate, br",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         })
+        
+        # Track which user agent we're using
+        self.current_ua_index = 0
+        
+        logger.info(f"Scraper ready for {self.base_url}, delay={self.request_delay}s")
 
-        return session
-
-    # Delay helper
-    def _get_delay(self) -> float:
-        if self.randomize_delay:
-            return random.uniform(self.min_delay, self.max_delay)
-        return self.request_delay
-
-    # Scrape single product-
-    def scrape_product(self, product_id: str) -> Optional[str]:
-        # Construct URL for Amazon India
+    def _get_headers(self) -> Dict[str, str]:        # Rotate user agents to look less bot-like.
+        headers = {
+            "User-Agent": USER_AGENTS[self.current_ua_index],
+            "Referer": "https://www.amazon.in/",
+        }
+        # Move to next UA for next request
+        self.current_ua_index = (self.current_ua_index + 1) % len(USER_AGENTS)
+        return headers
+    
+    def _random_delay(self) -> float:         # Add jitter to avoid pattern detection
+        return random.uniform(self.request_delay * 0.8, self.request_delay * 1.2)
+    
+    def scrape_product(self, product_id: str) -> Optional[str]:     #Get raw HTML for a product. Returns None if failed
         url = f"{self.base_url}/dp/{product_id}"
-
+        
         try:
-            time.sleep(self._get_delay())
-
-            headers = self.header_manager.get_headers()
-
-            logger.debug("Sending request to Amazon India", product_id=product_id, url=url)
-
+            # Be nice to Amazon
+            time.sleep(self._random_delay())
+            
             response = self.session.get(
                 url,
-                headers=headers,
+                headers=self._get_headers(),
                 timeout=self.timeout,
-                allow_redirects=True,
+                allow_redirects=True
             )
-
-            if response.status_code != 200:
-                logger.error(                         #Non-200 response received
-                    product_id=product_id,
-                    status_code=response.status_code,
-                    url=url,
-                )
-                return None
-
-            content = response.text
-            content_lower = content.lower()
-
+            
             # Check for bot detection
+            html = response.text.lower()
             for indicator in self.bot_indicators:
-                if indicator in content_lower:
-                    logger.warning(                            #Bot detection triggered on Amazon India
-                        product_id=product_id,
-                        indicator=indicator,
-                    )
-                    self.header_manager.rotate_user_agent()
+                if indicator in html:
+                    logger.warning(f"Bot detection: {indicator[:30]}...")
                     return None
-
-            logger.info(                      #Successfully scraped product
-                product_id=product_id,
-                status_code=response.status_code,
-                content_kb=len(content) / 1024,
-            )
-
-            return content
-
+            
+            if response.status_code != 200:
+                logger.error(f"HTTP {response.status_code} for {product_id}")
+                return None
+            
+            logger.info(f"Scraped {product_id}, {len(response.text)/1024:.1f}KB")
+            return response.text
+            
         except requests.RequestException as e:
-            logger.error(                                 #Request failed
-                product_id=product_id,
-                url=url,
-                error=str(e),
-            )
+            logger.error(f"Request failed for {product_id}: {e}")
             return None
-
-    #  Application-level retry logic
-    def scrape_with_retry(
-        self,
-        product_id: str,
-        max_attempts: int = 3
-    ) -> Optional[str]:
+        except Exception as e:
+            logger.error(f"Unexpected error for {product_id}: {e}")
+            return None
+    
+    def scrape_with_retry(self, product_id: str, max_attempts: int = 2) -> Optional[str]:
         for attempt in range(1, max_attempts + 1):
-            logger.info(                         #Scrape attempt for Amazon India
-                attempt=attempt,
-                max_attempts=max_attempts,
-                product_id=product_id,
-            )
-
             html = self.scrape_product(product_id)
-
             if html:
-                logger.info(          #Scrape succeeded
-                    attempt=attempt,
-                    product_id=product_id,
-                )
                 return html
-
-            if attempt < max_attempts:
-                self.header_manager.rotate_user_agent()
-
-                backoff_seconds = self.request_delay * (2 ** (attempt - 1))
-                logger.warning(                                     #Scrape failed, retrying
-                    attempt=attempt,
-                    backoff_seconds=backoff_seconds,
-                    product_id=product_id,
-                )
-                time.sleep(backoff_seconds)
-
-        logger.error(                               #All scrape attempts failed for Amazon India
-            product_id=product_id,
-            attempts=max_attempts,
-        )
+            logger.info(f"Retry {attempt}/{max_attempts} for {product_id}")
+            time.sleep(attempt * 2)  # Backoff
         return None
-
-    # Scrape multiple products
-    def scrape_multiple_products(
-        self, product_ids: List[str]
-    ) -> Dict[str, Optional[str]]:
-        results: Dict[str, Optional[str]] = {}
-
-        for idx, product_id in enumerate(product_ids, start=1):
-            logger.info(
-                current=idx,
-                total=len(product_ids),
-                product_id=product_id,
-            )
-
-            results[product_id] = self.scrape_with_retry(
-                product_id, max_attempts=3
-            )
-
-            if idx < len(product_ids):
-                time.sleep(self._get_delay() * 1.5)
-
+    
+    def scrape_multiple(self, product_ids: List[str]) -> Dict[str, Optional[str]]:
+        results = {}
+        for i, pid in enumerate(product_ids):
+            logger.info(f"Scraping {i+1}/{len(product_ids)}: {pid}")
+            results[pid] = self.scrape_with_retry(pid)
+            # Extra delay between products
+            if i < len(product_ids) - 1:
+                time.sleep(self.request_delay * 1.5)
         return results
