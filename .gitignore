@@ -30,3 +30,5 @@ Thumbs.db
 logs/
 __pycache__/
 .env
+# Generated utils / temp artifacts
+utils/*.txt
