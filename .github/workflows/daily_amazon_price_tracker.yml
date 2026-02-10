@@ -1,5 +1,8 @@
 name: Daily Amazon Price Tracker
 
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: "0 3 * * *"   # Daily at 3 AM UTC
@@ -33,7 +36,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-
           git add .
           git commit -m "Daily price update" || echo "No changes to commit"
           git push
