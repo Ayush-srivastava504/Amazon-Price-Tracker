@@ -2,21 +2,37 @@
 
 amazon:
   base_url: "https://www.amazon.in"
-  timeout: 15  # seconds
-  request_delay: 3.0  # seconds between requests
+  timeout: 15        # seconds
+  request_delay: 3.0 # seconds between requests
   max_retries: 2
 
 products:
-  # Example ASINs - replace with your own
+  # Curated ASINs across categories (books, electronics, smart devices, home & kitchen)
   asins:
-    - "8186775218"   # Book
-    - "939008525X"   # Book  
-    - "B0FM6B9Z45"   # Product
+    #  Books
+    - "9390166268"    # Rich Dad Poor Dad
+    - "9385223984"    # Ikigai
+
+    #  Audio / Wearables
+    - "B0DN1Q4NSJ"    # JBL Earphones
+    - "B0DN1RPL19"    # TWS Earbuds
+
+    #  Power & Streaming
+    - "B0D73XBQRW"    # Mi Power Bank 10000mAh
+    - "B08VFCN8WK"    # Fire TV Stick
+
+    #  Smart Devices
+    - "B09B8XJDW5"    # Echo Dot
+    - "B0FJLBGPW3"    # Realme Smartphone
+
+    #  Home & Kitchen
+    - "B002MPQH8U"    # Hawkins Pressure Cooker
+    - "B01I1LDZGA"    # Pigeon Electric Kettle
 
 storage:
   # Where to save results
   output_dir: "./data"
-  save_html: false  # Set to true for debugging
+  save_html: false   # Set to true for debugging
   save_json: true
 
 logging:
