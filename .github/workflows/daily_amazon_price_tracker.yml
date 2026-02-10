@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Amazon price tracker pipeline
         run: |
-          python pipeline/pipeline_runner.py
+          python -m pipeline.pipeline_runner
         env:
           ENVIRONMENT: production
 
