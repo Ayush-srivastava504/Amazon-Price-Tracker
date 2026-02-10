@@ -7,7 +7,6 @@ pydeck==0.9.1
 # Data stack (COMPATIBLE)
 numpy==2.2.6
 pandas==2.3.3
-pyarrow==15.0.2
 duckdb==1.4.4
 
 # Utilities
