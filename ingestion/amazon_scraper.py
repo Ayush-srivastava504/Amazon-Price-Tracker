@@ -1,5 +1,5 @@
 
-# Simple Amazon India scraper. Gets HTML, avoids bans, nothing fancy.
+# Simple Amazon India scraper. Gets HTML, avoids bans.
 
 import time
 import random

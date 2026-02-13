@@ -1,27 +1,5 @@
 [
   {
-    "product_id": "9390166268",
-    "title": "The Psychology of Money",
-    "price": 285.0,
-    "currency": "INR",
-    "availability": "in_stock",
-    "rating": 4.6,
-    "seller": "Cocoblu Retail",
-    "scraped_at": 1770731005.16438,
-    "url": "https://www.amazon.in/dp/9390166268"
-  },
-  {
-    "product_id": "9385223984",
-    "title": "Ikigai (\u0907\u0915\u093f\u0917\u093e\u0908) - Marathi",
-    "price": 183.0,
-    "currency": "INR",
-    "availability": "in_stock",
-    "rating": 4.5,
-    "seller": "Vidya Books A'bad",
-    "scraped_at": 1770731005.2634506,
-    "url": "https://www.amazon.in/dp/9385223984"
-  },
-  {
     "product_id": "B0DN1Q4NSJ",
     "title": "GOBOULT x Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Yellow)",
     "price": 1799.0,
@@ -29,7 +7,102 @@
     "availability": "in_stock",
     "rating": 4.0,
     "seller": "Clicktech Retail Private Ltd",
-    "scraped_at": 1770731005.3716724,
+    "scraped_at": 1770983719.0101743,
     "url": "https://www.amazon.in/dp/B0DN1Q4NSJ"
+  },
+  {
+    "product_id": "B0DN1RPL19",
+    "title": "GOBOULT x Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Silver)",
+    "price": 1799.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 4.0,
+    "seller": "Clicktech Retail Private Ltd",
+    "scraped_at": 1770983719.1284664,
+    "url": "https://www.amazon.in/dp/B0DN1RPL19"
+  },
+  {
+    "product_id": "B0D73XBQRW",
+    "title": "Xiaomi Power Bank 4i 10000mAh 22.5W Fast Charging PD|Smart 12 Layer Protection| Durable Steel Casing |Triple Output Ports|Supports All Phone(MI Power Bank),Black",
+    "price": 1099.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 4.2,
+    "seller": "Cocoblu Retail",
+    "scraped_at": 1770983719.2554145,
+    "url": "https://www.amazon.in/dp/B0D73XBQRW"
+  },
+  {
+    "product_id": "B08VFCN8WK",
+    "title": "Certified Refurbished Fire TV Stick with all-new Alexa Voice Remote (includes TV and app controls) | HD streaming device",
+    "price": 3829.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "seller": "Deals Paradize",
+    "scraped_at": 1770983719.356499,
+    "url": "https://www.amazon.in/dp/B08VFCN8WK"
+  },
+  {
+    "product_id": "B09B8XJDW5",
+    "title": "Amazon Echo Dot (5th Gen) | Smart speaker with vibrant sound, Motion Detection, Temperature Sensor, Alexa and Bluetooth| Blue",
+    "price": 5499.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 4.1,
+    "seller": "Clicktech Retail Private Ltd",
+    "scraped_at": 1770983719.5288804,
+    "url": "https://www.amazon.in/dp/B09B8XJDW5"
+  },
+  {
+    "product_id": "B0FJLBGPW3",
+    "title": "realme 15 Pro 5G Smartphone 8+256GB Silver,4K 60FPS,144Hz HyperGlow 4D Curve Display,7000mAh Battery,80W SuperVOOC, Camera Triple 50MP, Snapdragon 7 Gen 4, IP69",
+    "price": 33999.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 4.3,
+    "seller": "Phone Xpress",
+    "scraped_at": 1770983719.6999905,
+    "url": "https://www.amazon.in/dp/B0FJLBGPW3"
+  },
+  {
+    "product_id": "B002MPQH8U",
+    "title": "Hawkins 3 Litre Inner Lid Pressure Cooker, Stainless Steel Cooker, Induction Cooker, Silver (HSS3W)",
+    "price": 2722.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 4.4,
+    "seller": "RetailEZ Pvt Ltd",
+    "scraped_at": 1770983719.835218,
+    "url": "https://www.amazon.in/dp/B002MPQH8U"
+  },
+  {
+    "product_id": "B01I1LDZGA",
+    "title": "Pigeon Kessel Multipurpose Kettle (12173) 1.2 litres with Stainless Steel Body, used for boiling Water and milk, Tea, Coffee, Oats, Noodles, Soup etc. 600 Watt (Black & Silver)",
+    "price": 899.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 3.8,
+    "seller": "RetailEZ Pvt Ltd",
+    "scraped_at": 1770983719.9702942,
+    "url": "https://www.amazon.in/dp/B01I1LDZGA"
+  },
+  {
+    "product_id": "B09G9FPGTN",
+    "title": "Apple iPhone 13 (128GB) - Pink",
+    "currency": "INR",
+    "availability": "out_of_stock",
+    "rating": 4.5,
+    "scraped_at": 1770983720.1032639,
+    "url": "https://www.amazon.in/dp/B09G9FPGTN"
+  },
+  {
+    "product_id": "B09X7C2GBC",
+    "title": "SanDisk 512GB Extreme microSDXC UHS-I Memory Card with Adapter - C10, U3, V30, 4K, 5K, A2, Micro SD Card - SDSQXAV-512G-GN6MA",
+    "price": 5799.0,
+    "currency": "INR",
+    "availability": "unknown",
+    "rating": 4.4,
+    "scraped_at": 1770983720.276524,
+    "url": "https://www.amazon.in/dp/B09X7C2GBC"
   }
 ]

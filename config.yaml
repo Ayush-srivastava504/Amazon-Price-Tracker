@@ -7,12 +7,8 @@ amazon:
   max_retries: 2
 
 products:
-  # Curated ASINs across categories (books, electronics, smart devices, home & kitchen)
+  # Curated ASINs across electronics, smart devices, home & kitchen
   asins:
-    #  Books
-    - "9390166268"    # Rich Dad Poor Dad
-    - "9385223984"    # Ikigai
-
     #  Audio / Wearables
     - "B0DN1Q4NSJ"    # JBL Earphones
     - "B0DN1RPL19"    # TWS Earbuds
@@ -28,6 +24,26 @@ products:
     #  Home & Kitchen
     - "B002MPQH8U"    # Hawkins Pressure Cooker
     - "B01I1LDZGA"    # Pigeon Electric Kettle
+
+    #  Added Products
+    - "B0BDK62PDX"
+    - "B09G9FPGTN"
+    - "B0CHX1W1XY"
+    - "B0C8ZJHL4R"
+    - "B09X7C2GBC"
+    - "B0BQ3Y6H7F"
+    - "B0B6QKHTV7"
+    - "B0C5J4KHT2"
+    - "B08L5TNJHG"
+    - "B0B1M6KQY7"
+    - "B09V3K8J4F"
+    - "B0C9K2L7HX"
+    - "B0B7K8QH5T"
+    - "B0C2X9JH6P"
+    - "B09L8K3M2N"
+    - "B0B9Q7K5HD"
+    - "B0C4T6J8KL"
+    - "B08N5WRWNW"
 
 storage:
   # Where to save results
