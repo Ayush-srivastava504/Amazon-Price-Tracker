@@ -2,53 +2,36 @@
 
 amazon:
   base_url: "https://www.amazon.in"
-  timeout: 15        # seconds
-  request_delay: 3.0 # seconds between requests
+  timeout: 15
+  request_delay: 3.0
   max_retries: 2
 
 products:
-  # Curated ASINs across electronics, smart devices, home & kitchen
   asins:
-    #  Audio / Wearables
-    - "B0DN1Q4NSJ"    # JBL Earphones
-    - "B0DN1RPL19"    # TWS Earbuds
-
-    #  Power & Streaming
-    - "B0D73XBQRW"    # Mi Power Bank 10000mAh
-    - "B08VFCN8WK"    # Fire TV Stick
-
-    #  Smart Devices
-    - "B09B8XJDW5"    # Echo Dot
-    - "B0FJLBGPW3"    # Realme Smartphone
-
-    #  Home & Kitchen
-    - "B002MPQH8U"    # Hawkins Pressure Cooker
-    - "B01I1LDZGA"    # Pigeon Electric Kettle
-
-    #  Added Products
-    - "B0BDK62PDX"
-    - "B09G9FPGTN"
-    - "B0CHX1W1XY"
-    - "B0C8ZJHL4R"
-    - "B09X7C2GBC"
-    - "B0BQ3Y6H7F"
-    - "B0B6QKHTV7"
-    - "B0C5J4KHT2"
-    - "B08L5TNJHG"
-    - "B0B1M6KQY7"
-    - "B09V3K8J4F"
-    - "B0C9K2L7HX"
-    - "B0B7K8QH5T"
-    - "B0C2X9JH6P"
-    - "B09L8K3M2N"
-    - "B0B9Q7K5HD"
-    - "B0C4T6J8KL"
-    - "B08N5WRWNW"
+    - "B0CSWNZFJP"
+    - "B0DHLF7JD1"
+    - "B0G5G2KMQN"
+    - "B0G2BBWKCP"
+    - "B0FM6B9Z45"
+    - "B0FVS76HKH"
+    - "B0FVS5PRCH"
+    - "B0CQJWMMG7"
+    - "B0CQJWQWD9"
+    - "B0CQJXC3SP"
+    - "B0DCNZGW36"
+    - "B0DCZ3WDTB"
+    - "B0DCP1FPX9"
+    - "B0FTZDP196"
+    - "B0DRSVR4G2"
+    - "B0FSXYP5MM"
+    - "B0D7QK57R7"
+    - "B0C5X2MGX3"
+    - "B0D7QKQMZP"
+    - "B0D6N5V9PY"
 
 storage:
-  # Where to save results
   output_dir: "./data"
-  save_html: false   # Set to true for debugging
+  save_html: false
   save_json: true
 
 logging:

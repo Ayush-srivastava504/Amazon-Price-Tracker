@@ -1,108 +1,90 @@
 [
   {
-    "product_id": "B0DN1Q4NSJ",
-    "title": "GOBOULT x Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Yellow)",
-    "price": 1799.0,
+    "product_id": "B0CSWNZFJP",
+    "title": "realme 12 Pro+ 5G (Navigator Beige, 12GB RAM, 256GB Storage) | 6.7\" 120Hz Curved AMOLED Display | 64MP Periscope + 50MP Sony IMX 890 OIS Camera + 8MP | 32MP Selfie Camera | 67W Super VOOC Charge",
+    "price": 30290.0,
     "currency": "INR",
     "availability": "in_stock",
-    "rating": 4.0,
-    "seller": "Clicktech Retail Private Ltd",
-    "scraped_at": 1770983719.0101743,
-    "url": "https://www.amazon.in/dp/B0DN1Q4NSJ"
+    "rating": 4.3,
+    "seller": "Shop!House",
+    "scraped_at": 1770985613.5326872,
+    "url": "https://www.amazon.in/dp/B0CSWNZFJP"
   },
   {
-    "product_id": "B0DN1RPL19",
-    "title": "GOBOULT x Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Silver)",
-    "price": 1799.0,
+    "product_id": "B0FM6B9Z45",
+    "title": "Fire-Boltt Aero TWS Earbuds Custom EQ, Wireless Bluetooth 5.4, Music & App Support, 50H Playtime, Fast Charging Case, 50ms Low Latency for Gaming, Touch Controls, IPX4 Waterproof, Clear Calls - Black",
+    "price": 799.0,
     "currency": "INR",
     "availability": "in_stock",
-    "rating": 4.0,
+    "rating": 3.9,
     "seller": "Clicktech Retail Private Ltd",
-    "scraped_at": 1770983719.1284664,
-    "url": "https://www.amazon.in/dp/B0DN1RPL19"
+    "scraped_at": 1770985613.7354112,
+    "url": "https://www.amazon.in/dp/B0FM6B9Z45"
   },
   {
-    "product_id": "B0D73XBQRW",
-    "title": "Xiaomi Power Bank 4i 10000mAh 22.5W Fast Charging PD|Smart 12 Layer Protection| Durable Steel Casing |Triple Output Ports|Supports All Phone(MI Power Bank),Black",
-    "price": 1099.0,
+    "product_id": "B0CQJWQWD9",
+    "title": "Noise Buds N1 Truly Wireless Earbuds with Chrome Finish, 40H of Playtime, Quad Mic with ENC, Ultra Low Latency Gaming (Up to 40 Ms), Instacharge(10 Min=120 Min), Bluetooth V5.3(Forest Green)",
+    "price": 799.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 3.8,
+    "seller": "Clicktech Retail Private Ltd",
+    "scraped_at": 1770985613.886156,
+    "url": "https://www.amazon.in/dp/B0CQJWQWD9"
+  },
+  {
+    "product_id": "B0DCNZGW36",
+    "title": "Xiaomi Power Bank 4i 20000mAh 33W Super Fast Charging PD |Smart 12 Layer Protection|Type C Input & Output|Triple Output Ports|Supports Android,Apple, Tablets, Earbuds,Watch(MI Powerbank),Blue",
+    "price": 1999.0,
     "currency": "INR",
     "availability": "in_stock",
     "rating": 4.2,
     "seller": "Cocoblu Retail",
-    "scraped_at": 1770983719.2554145,
-    "url": "https://www.amazon.in/dp/B0D73XBQRW"
+    "scraped_at": 1770985614.018398,
+    "url": "https://www.amazon.in/dp/B0DCNZGW36"
   },
   {
-    "product_id": "B08VFCN8WK",
-    "title": "Certified Refurbished Fire TV Stick with all-new Alexa Voice Remote (includes TV and app controls) | HD streaming device",
-    "price": 3829.0,
+    "product_id": "B0FTZDP196",
+    "title": "Kratos PB03 Magsafe Powerbank 10000mAh, Mechanical Design,15W wireless power bank for iphone, Fast Charging 22.5W PD Output & USB-A Output, Compatible with iPhone 11/12/13/14/15/16/17 & Samsung series",
+    "price": 1498.0,
     "currency": "INR",
     "availability": "in_stock",
-    "seller": "Deals Paradize",
-    "scraped_at": 1770983719.356499,
-    "url": "https://www.amazon.in/dp/B08VFCN8WK"
+    "rating": 4.4,
+    "seller": "Cocoblu Retail",
+    "scraped_at": 1770985614.1853023,
+    "url": "https://www.amazon.in/dp/B0FTZDP196"
   },
   {
-    "product_id": "B09B8XJDW5",
-    "title": "Amazon Echo Dot (5th Gen) | Smart speaker with vibrant sound, Motion Detection, Temperature Sensor, Alexa and Bluetooth| Blue",
-    "price": 5499.0,
+    "product_id": "B0DRSVR4G2",
+    "title": "Kratos 20000mAh 35W Turbo Fast Charging Power Bank | Dual Output | PD + QC Compatible | Two-Way Fast Charging | for MacBook Air, iPhone, Samsung, Android & More (Black)",
+    "price": 1499.0,
+    "currency": "INR",
+    "availability": "in_stock",
+    "rating": 4.0,
+    "seller": "Cocoblu Retail",
+    "scraped_at": 1770985614.3185112,
+    "url": "https://www.amazon.in/dp/B0DRSVR4G2"
+  },
+  {
+    "product_id": "B0D7QK57R7",
+    "title": "Noise Diva 2 Fashion Smart Watch for Women - Sleekest Dial, 36mm AMOLED Display, Snug Fit, Improved Female Cycle Tracker, BT Calling, Sleep Tracking, AI Voice Assistant, Password Protection(Rose Link)",
+    "price": 3999.0,
     "currency": "INR",
     "availability": "in_stock",
     "rating": 4.1,
     "seller": "Clicktech Retail Private Ltd",
-    "scraped_at": 1770983719.5288804,
-    "url": "https://www.amazon.in/dp/B09B8XJDW5"
+    "scraped_at": 1770985614.4509697,
+    "url": "https://www.amazon.in/dp/B0D7QK57R7"
   },
   {
-    "product_id": "B0FJLBGPW3",
-    "title": "realme 15 Pro 5G Smartphone 8+256GB Silver,4K 60FPS,144Hz HyperGlow 4D Curve Display,7000mAh Battery,80W SuperVOOC, Camera Triple 50MP, Snapdragon 7 Gen 4, IP69",
-    "price": 33999.0,
+    "product_id": "B0D7QKQMZP",
+    "title": "Noise Diva 2 Fashion Smart Watch for Women - Sleekest Dial, 36mm AMOLED Display, Snug Fit, Improved Female Cycle Tracker, BT Calling, Sleep Tracking, AI Voice Assistant, Password Protection(Rose Pink)",
+    "price": 3499.0,
     "currency": "INR",
     "availability": "in_stock",
-    "rating": 4.3,
-    "seller": "Phone Xpress",
-    "scraped_at": 1770983719.6999905,
-    "url": "https://www.amazon.in/dp/B0FJLBGPW3"
-  },
-  {
-    "product_id": "B002MPQH8U",
-    "title": "Hawkins 3 Litre Inner Lid Pressure Cooker, Stainless Steel Cooker, Induction Cooker, Silver (HSS3W)",
-    "price": 2722.0,
-    "currency": "INR",
-    "availability": "in_stock",
-    "rating": 4.4,
-    "seller": "RetailEZ Pvt Ltd",
-    "scraped_at": 1770983719.835218,
-    "url": "https://www.amazon.in/dp/B002MPQH8U"
-  },
-  {
-    "product_id": "B01I1LDZGA",
-    "title": "Pigeon Kessel Multipurpose Kettle (12173) 1.2 litres with Stainless Steel Body, used for boiling Water and milk, Tea, Coffee, Oats, Noodles, Soup etc. 600 Watt (Black & Silver)",
-    "price": 899.0,
-    "currency": "INR",
-    "availability": "in_stock",
-    "rating": 3.8,
-    "seller": "RetailEZ Pvt Ltd",
-    "scraped_at": 1770983719.9702942,
-    "url": "https://www.amazon.in/dp/B01I1LDZGA"
-  },
-  {
-    "product_id": "B09G9FPGTN",
-    "title": "Apple iPhone 13 (128GB) - Pink",
-    "currency": "INR",
-    "availability": "out_of_stock",
-    "rating": 4.5,
-    "scraped_at": 1770983720.1032639,
-    "url": "https://www.amazon.in/dp/B09G9FPGTN"
-  },
-  {
-    "product_id": "B09X7C2GBC",
-    "title": "SanDisk 512GB Extreme microSDXC UHS-I Memory Card with Adapter - C10, U3, V30, 4K, 5K, A2, Micro SD Card - SDSQXAV-512G-GN6MA",
-    "price": 5799.0,
-    "currency": "INR",
-    "availability": "unknown",
-    "rating": 4.4,
-    "scraped_at": 1770983720.276524,
-    "url": "https://www.amazon.in/dp/B09X7C2GBC"
+    "rating": 4.1,
+    "seller": "Clicktech Retail Private Ltd",
+    "scraped_at": 1770985614.5963733,
+    "url": "https://www.amazon.in/dp/B0D7QKQMZP"
   }
 ]

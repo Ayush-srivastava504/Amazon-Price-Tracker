@@ -3,10 +3,62 @@ from bs4 import BeautifulSoup
 import time
 import random
 import re
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from urllib.parse import quote_plus
 from pathlib import Path
 from datetime import datetime
+
+class ASINValidator:
+    
+    @staticmethod
+    def is_valid(asin: str) -> Tuple[bool, str]:
+        if not asin:
+            return False, "Empty ASIN"
+        
+        asin = str(asin).strip()
+        
+        # Check length
+        if len(asin) != 10:
+            return False, f"Invalid length: {len(asin)} (must be 10)"
+        
+        # Check alphanumeric only
+        if not asin.isalnum():
+            return False, "Contains non-alphanumeric characters"
+        
+        # Check for common patterns that suggest invalid ASINs
+        if asin.isdigit():
+            return False, "All digits (should have letters)"
+        
+        if asin.isalpha():
+            return False, "All letters (should have digits)"
+        
+        # Check for repeated characters (sometimes indicates parsing error)
+        if len(set(asin)) <= 2:
+            return False, "Too few unique characters"
+        
+        return True, "Valid"
+    
+    @staticmethod
+    def validate_batch(asins: List[str]) -> Dict:
+        """Validate multiple ASINs and return summary"""
+        results = {
+            'valid': [],
+            'invalid': [],
+            'valid_count': 0,
+            'invalid_count': 0
+        }
+        
+        for asin in asins:
+            is_valid, reason = ASINValidator.is_valid(asin)
+            if is_valid:
+                results['valid'].append(asin)
+                results['valid_count'] += 1
+            else:
+                results['invalid'].append({'asin': asin, 'reason': reason})
+                results['invalid_count'] += 1
+        
+        return results
+
 
 class VolatileProductFinder:
     
@@ -17,6 +69,12 @@ class VolatileProductFinder:
         self.max_requests = 25
         self.utils_dir = Path("utils")
         self.utils_dir.mkdir(exist_ok=True)
+        self.asin_validator = ASINValidator()
+        self.validation_stats = {
+            'total_parsed': 0,
+            'valid_asins': 0,
+            'invalid_asins': 0
+        }
         
     def _create_session(self) -> requests.Session:
         session = requests.Session()
@@ -120,9 +178,16 @@ class VolatileProductFinder:
         
         for item in soup.find_all('div', {'data-asin': True}):
             asin = item.get('data-asin')
+            self.validation_stats['total_parsed'] += 1
             
-            if not asin or len(asin) != 10:
+            # Validate ASIN
+            is_valid, reason = self.asin_validator.is_valid(asin)
+            
+            if not is_valid:
+                self.validation_stats['invalid_asins'] += 1
                 continue
+            
+            self.validation_stats['valid_asins'] += 1
             
             title_elem = item.find('span', class_='a-text-normal')
             if not title_elem:
@@ -136,7 +201,8 @@ class VolatileProductFinder:
                 'asin': asin,
                 'title': title[:90],
                 'url': f"{self.base_url}/dp/{asin}",
-                'search': search_term
+                'search': search_term,
+                'valid': True
             })
             
             if len(products) >= max_results:
@@ -151,6 +217,10 @@ class VolatileProductFinder:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write("VOLATILE PRODUCTS - AMAZON INDIA\n")
             f.write(f"generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write("=" * 70 + "\n")
+            f.write(f"Total ASIN Candidates Parsed: {self.validation_stats['total_parsed']}\n")
+            f.write(f"Valid ASINs: {self.validation_stats['valid_asins']}\n")
+            f.write(f"Invalid ASINs (filtered): {self.validation_stats['invalid_asins']}\n")
             f.write("=" * 70 + "\n\n")
             
             by_category = {}
@@ -166,7 +236,8 @@ class VolatileProductFinder:
                 for p in items:
                     f.write(f"ASIN: {p['asin']}\n")
                     f.write(f"Title: {p['title']}\n")
-                    f.write(f"URL: {p['url']}\n\n")
+                    f.write(f"URL: {p['url']}\n")
+                    f.write(f"Valid: {p['valid']}\n\n")
         
         print(f"\nsaved to: {output_file}")
         
@@ -177,6 +248,20 @@ class VolatileProductFinder:
                 f.write(f"{p['asin']} - {p['title'][:60]}\n")
         
         print(f"saved list to: {simple_file}")
+        
+        # validation report
+        validation_file = self.utils_dir / f"validation_report_{timestamp}.txt"
+        with open(validation_file, 'w', encoding='utf-8') as f:
+            f.write("ASIN VALIDATION REPORT\n")
+            f.write("=" * 70 + "\n\n")
+            f.write(f"Total Parsed: {self.validation_stats['total_parsed']}\n")
+            f.write(f"Valid: {self.validation_stats['valid_asins']}\n")
+            f.write(f"Invalid: {self.validation_stats['invalid_asins']}\n")
+            if self.validation_stats['total_parsed'] > 0:
+                validity_rate = (self.validation_stats['valid_asins'] / self.validation_stats['total_parsed']) * 100
+                f.write(f"Validity Rate: {validity_rate:.1f}%\n")
+        
+        print(f"saved validation report to: {validation_file}")
 
 
 # VOLATILE / TRENDING PRODUCTS - daily price changes, deals, tech
@@ -246,10 +331,11 @@ VOLATILE_PRODUCTS = {
 
 def main():
     print("\n" + "=" * 70)
-    print("VOLATILE PRODUCT FINDER - Amazon India")
+    print("VOLATILE PRODUCT FINDER - Amazon India (with ASIN Validation)")
     print("=" * 70)
     print("\nthis finds trending/volatile products with daily price changes")
     print("will check 12 categories across 24+ searches")
+    print("includes ASIN validation to filter invalid entries")
     print("takes about 5-8 minutes")
     print("\n" + "=" * 70 + "\n")
     
@@ -259,7 +345,7 @@ def main():
     all_products = []
     
     print("\n" + "=" * 70)
-    print("PHASE 1: COLLECTING ASINS")
+    print("PHASE 1: COLLECTING ASINS (with validation)")
     print("=" * 70 + "\n")
     
     categories_done = 0
@@ -307,6 +393,14 @@ def main():
     print(f"total asins: {len(unique)}")
     print(f"requests used: {finder.request_count}/{finder.max_requests}")
     print(f"categories: {categories_done}")
+    print(f"\nValidation Stats:")
+    print(f"  Total Parsed: {finder.validation_stats['total_parsed']}")
+    print(f"  Valid: {finder.validation_stats['valid_asins']}")
+    print(f"  Invalid (filtered): {finder.validation_stats['invalid_asins']}")
+    
+    if finder.validation_stats['total_parsed'] > 0:
+        validity_rate = (finder.validation_stats['valid_asins'] / finder.validation_stats['total_parsed']) * 100
+        print(f"  Validity Rate: {validity_rate:.1f}%")
     
     if not unique:
         print("\nno items found")
@@ -319,7 +413,7 @@ def main():
     print("DONE")
     print("=" * 70)
     
-    print(f"\nfound {len(unique)} products")
+    print(f"\nfound {len(unique)} validated products")
     print("check utils/ folder for results")
     
     print("\nfirst 10 asins:")
