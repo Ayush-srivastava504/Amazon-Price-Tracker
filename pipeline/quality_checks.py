@@ -4,7 +4,8 @@ import statistics
 
 logger = logging.getLogger(__name__)
 
-def run_quality_checks(data: List[Dict[str, Any]]) -> Tuple[bool, Dict[str, Any]]:     # Run basic quality checks on transformed data
+def run_quality_checks(data: List[Dict[str, Any]]) -> Tuple[bool, Dict[str, Any]]:     # Run basic quality checks on transformed datapython -m pipeline.pipeline_runner --live
+
     if not data:
         return False, {"error": "No data to check"}
     
