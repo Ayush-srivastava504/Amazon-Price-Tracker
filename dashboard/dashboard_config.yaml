@@ -16,7 +16,7 @@ time_ranges:
 # UI settings
 ui:
   page_title: "Amazon Price Tracker"
-  page_icon: "📈"
+  page_icon: "₹"
   layout: "wide"  # centered or wide
   initial_sidebar_state: "expanded"
 

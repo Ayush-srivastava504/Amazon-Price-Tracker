@@ -53,7 +53,7 @@ def init_db(db_path="data/amazon_prices.duckdb"):       #Setup DuckDB
 # Simple singleton pattern - one connection per process
 _db_conn = None
 
-def get_connection(db_path="data/amazon_prices+.duckdb"):     #Get database connection
+def get_connection(db_path="data/amazon_prices.duckdb"):     #Get database connection
     global _db_conn
     if _db_conn is None:
         _db_conn = init_db(db_path)
