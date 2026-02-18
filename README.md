@@ -3,8 +3,11 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![Web Scraping](https://img.shields.io/badge/Web%20Scraping-BeautifulSoup-orange)]()
-[![Automation](https://img.shields.io/badge/Automation-Scheduled%20Tracking-success)]()
-[![Data Storage](https://img.shields.io/badge/Storage-CSV%20%7C%20Database-blueviolet)]()
+[![Database](https://img.shields.io/badge/Database-DuckDB-yellow)]()
+[![Visualization](https://img.shields.io/badge/Visualization-Plotly-blueviolet)]()
+[![App](https://img.shields.io/badge/App-Streamlit-red)]()
+[![Deployment](https://img.shields.io/badge/Deployed-Live-success)]()
+
 
 A production-grade price tracking system for Amazon India with automated scraping, ETL pipeline, DuckDB analytics, and interactive Streamlit dashboard.
 
