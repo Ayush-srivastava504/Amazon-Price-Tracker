@@ -246,7 +246,7 @@ CREATE TABLE raw_scrapes (
 );
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Dashboard Config (`dashboard/dashboard_config.yaml`)
 
@@ -282,7 +282,7 @@ products:
     - B09G9FPHY6
 ```
 
-## 🤖 Automated Orchestration
+## Automated Orchestration
 
 ### GitHub Actions
 
@@ -352,7 +352,7 @@ The ETL pipeline follows these steps:
    - Insert into `price_history`
    - Update `pipeline_state`
 
-## 📝 Data Quality
+## Data Quality
 
 ### Validation Rules
 
