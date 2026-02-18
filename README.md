@@ -1,5 +1,11 @@
 #  Amazon Price Tracker
 
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
+[![Web Scraping](https://img.shields.io/badge/Web%20Scraping-BeautifulSoup-orange)]()
+[![Automation](https://img.shields.io/badge/Automation-Scheduled%20Tracking-success)]()
+[![Data Storage](https://img.shields.io/badge/Storage-CSV%20%7C%20Database-blueviolet)]()
+
 A production-grade price tracking system for Amazon India with automated scraping, ETL pipeline, DuckDB analytics, and interactive Streamlit dashboard.
 
 [![Live App](https://img.shields.io/badge/Live%20App-Streamlit-red?logo=streamlit)](https://amazon-price-tracker-dqekzbhp749ccus9eszhsb.streamlit.app/)
