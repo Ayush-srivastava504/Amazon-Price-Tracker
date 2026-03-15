@@ -28,7 +28,7 @@ st.set_page_config(
 )
 
 # Title
-st.title("📈 Amazon Price Tracker")
+st.title(" Amazon Price Tracker")
 st.markdown("---")
 
 # Load initial data
