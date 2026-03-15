@@ -1,4 +1,13 @@
-# 📈 Amazon Price Tracker
+#  Amazon Price Tracker
+
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
+[![Web Scraping](https://img.shields.io/badge/Web%20Scraping-BeautifulSoup-orange)]()
+[![Database](https://img.shields.io/badge/Database-DuckDB-yellow)]()
+[![Visualization](https://img.shields.io/badge/Visualization-Plotly-blueviolet)]()
+[![App](https://img.shields.io/badge/App-Streamlit-red)]()
+[![Deployment](https://img.shields.io/badge/Deployed-Live-success)]()
+
 
 A production-grade price tracking system for Amazon India with automated scraping, ETL pipeline, DuckDB analytics, and interactive Streamlit dashboard.
 
@@ -6,7 +15,7 @@ A production-grade price tracking system for Amazon India with automated scrapin
 
 ![Dashboard Preview](docs/images/dashboard_preview.png)
 
-## 🌟 Features
+##  Features
 
 - **Automated Scraping**: Intelligent HTML parsing with anti-bot headers and retry logic
 - **ETL Pipeline**: Extract-Transform-Load with data quality checks
@@ -16,7 +25,7 @@ A production-grade price tracking system for Amazon India with automated scrapin
 - **Data Quality**: Built-in validation and quality checks
 - **Production Ready**: Logging, error handling, and pipeline state tracking
 
-## 🏗️ Architecture
+##  Architecture
 
 The system follows a **4-layer ETL architecture**:
 
@@ -67,7 +76,7 @@ The system follows a **4-layer ETL architecture**:
 
 See [Architecture Documentation](docs/architecture.md) for detailed system design.
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 Amazon-Price-Tracker/
@@ -126,7 +135,7 @@ Amazon-Price-Tracker/
 └── README.md                    # This file
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -174,7 +183,7 @@ streamlit run dashboard/app.py
 # Dashboard will open at http://localhost:8501
 ```
 
-## 📊 Dashboard Features
+## Dashboard Features
 
 ### Overview Metrics
 - Total products tracked
@@ -198,7 +207,7 @@ streamlit run dashboard/app.py
 - Export to CSV
 - Download with timestamp
 
-## 🗄️ Database Schema
+##  Database Schema
 
 ### Core Tables
 
@@ -237,7 +246,7 @@ CREATE TABLE raw_scrapes (
 );
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Dashboard Config (`dashboard/dashboard_config.yaml`)
 
@@ -273,7 +282,7 @@ products:
     - B09G9FPHY6
 ```
 
-## 🤖 Automated Orchestration
+## Automated Orchestration
 
 ### GitHub Actions
 
@@ -343,7 +352,7 @@ The ETL pipeline follows these steps:
    - Insert into `price_history`
    - Update `pipeline_state`
 
-## 📝 Data Quality
+## Data Quality
 
 ### Validation Rules
 
@@ -360,7 +369,7 @@ The ETL pipeline follows these steps:
 - Missing required fields
 - Suspicious price ranges
 
-## 🔍 Querying Data
+##  Querying Data
 
 ### From Dashboard
 
@@ -400,7 +409,7 @@ trends = conn.execute("""
 """).fetchdf()
 ```
 
-## 🚢 Deployment
+##  Deployment
 
 ### Streamlit Cloud
 
@@ -422,7 +431,7 @@ docker run -v $(pwd)/data:/app/data amazon-tracker python -m pipeline.pipeline_r
 docker run -p 8501:8501 -v $(pwd)/data:/app/data amazon-tracker streamlit run dashboard/app.py
 ```
 
-## 🛡️ Error Handling
+##  Error Handling
 
 The system handles various failure scenarios:
 
@@ -433,7 +442,7 @@ The system handles various failure scenarios:
 - **Parsing Errors**: Log error, skip product, continue
 
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Run all tests
@@ -446,7 +455,7 @@ pytest tests/test_pipeline.py
 pytest --cov=pipeline --cov-report=html
 ```
 
-## 📊 Monitoring
+##  Monitoring
 
 ### Pipeline Logs
 
@@ -469,7 +478,7 @@ print(f"In stock: {stats['in_stock']}")
 print(f"Scrapes today: {stats['scrapes_today']}")
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create feature branch: `git checkout -b feature/amazing-feature`
@@ -477,21 +486,21 @@ print(f"Scrapes today: {stats['scrapes_today']}")
 4. Push to branch: `git push origin feature/amazing-feature`
 5. Open Pull Request
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Amazon for product data
 - Streamlit for dashboard framework
 - DuckDB for analytics engine
 - Plotly for visualizations
 
-## 📧 Contact
+##  Contact
 
 Project Link: [https://github.com/Ayush-srivastava504/Amazon-Price-Tracker](https://github.com/Ayush-srivastava504/Amazon-Price-Tracker)
 
 ---
 
-**Built with ❤️ using Python, DuckDB, and Streamlit**
+**Built using Python, DuckDB, and Streamlit**
